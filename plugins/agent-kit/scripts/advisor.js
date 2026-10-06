@@ -293,6 +293,7 @@ function updateLessons(res) {
 function syncDashboard() {
   fs.mkdirSync(STATE, { recursive: true });
   for (const f of ["dashboard.js", "dashboard.html"]) fs.copyFileSync(path.join(ROOT, f), path.join(STATE, f));
+  writeFile(path.join(STATE, "plugin-root.txt"), path.resolve(ROOT, ".."));  // lets skills find this plugin's scripts
   const inst = path.join(STATE, "installed.json");
   if (!fs.existsSync(inst)) {
     const old = readJSON(path.join(HOME, ".agent-kit", "installed.json"), null);  // carried over from the old installer

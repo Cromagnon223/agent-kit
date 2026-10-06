@@ -2,6 +2,8 @@
 
 This kit makes Claude Code use fewer tokens and cheaper models, and it tunes itself from your own usage. It installs from this repo and updates itself.
 
+How it all fits together, in plain words: [PIPELINE.md](PIPELINE.md).
+
 ## Install (Windows, one time)
 
 Download **connect-agent-kit.zip**, unzip it, and double-click **Connect Agent Kit.bat**. It installs Git, Node.js and Claude Code if they're missing, then connects Claude Code to this repo with auto-update turned on.

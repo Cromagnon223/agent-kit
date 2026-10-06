@@ -301,6 +301,16 @@ function syncDashboard() {
   }
 }
 
+// Keep the Desktop launcher (started on Sonnet) in step with the kit's own copy. Only replaces a file that is already there.
+function refreshLauncher() {
+  const src = path.join(ROOT, "..", "launchers", "Start Claude Code.bat");
+  if (!fs.existsSync(src)) return;
+  for (const d of [path.join(HOME, "Desktop"), path.join(HOME, "OneDrive", "Desktop")]) {
+    const dst = path.join(d, "Start Claude Code.bat");
+    if (fs.existsSync(dst)) fs.copyFileSync(src, dst);
+  }
+}
+
 // Safety net next to Claude Code's own marketplace auto-update: at most every 12 hours, pull the latest
 // Agent Kit from GitHub in the background. Changes apply at the next session start; nothing waits on it.
 function backgroundUpdate() {
@@ -317,12 +327,13 @@ function main() {
   const mode = process.argv[2] || "start";
   if (mode === "start") {
     try { syncDashboard(); } catch (e) {}
+    try { refreshLauncher(); } catch (e) {}
     try { backgroundUpdate(); } catch (e) {}
     let rules = "";
     try { rules = fs.readFileSync(path.join(ROOT, "rules.md"), "utf8").trim() + "\n"; } catch (e) {}
     const res = advise();
     writeFile(path.join(STATE, "advice.json"), JSON.stringify(res));
-    process.stdout.write(rules + "Advice from this PC's token logs:\n" + res.lines.slice(0, 5).map((l) => "- " + l).join("\n") + "\n");
+    process.stdout.write(rules + "Advice from this PC's token logs:\n- Start on Sonnet; switch to Opus only for hard design.\n" + res.lines.slice(0, 5).map((l) => "- " + l).join("\n") + "\n");
     return;
   }
   const res = advise();

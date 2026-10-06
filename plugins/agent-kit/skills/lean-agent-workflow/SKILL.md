@@ -21,6 +21,9 @@ Work this way on every project.
 - Goal check only at milestones (the plan, and before "done"): "Goal: on track" or "Goal: drifting - why".
 - Build the deliverable that serves the goal first; side tools later.
 
+**Merging**
+Kyle never merges: once a PR an agent opened in Kyle's own repos has green checks (or no CI), no merge conflicts and no open review threads, the agent squash-merges it itself and tells Kyle in one plain line. If checks fail, fix and re-push first; never merge red. Never merge other people's PRs or repos Kyle doesn't own, never force-push, rewrite history or skip checks. Production deploys are not covered.
+
 **Before shipping (user-check)**
 Double-clicks only, nothing to re-download, no screen you haven't confirmed exists on their setup.
 

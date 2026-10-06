@@ -33,3 +33,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Every new project starts from project-mind/ (paste-in instructions for app projects, cloud/ copy for GitHub repos); never rebuild the rules per project.
 - Give Kyle one visual front door (Project Mind page) with three buttons by project type; never a folder of files to read.
 - A new project can't know about our kit: give it one first-message line (Project Mind bootstrap) that detects the setup it needs and applies it itself.
+- Kyle never merges anything for a project: agents open the PR, wait for green checks, then squash-merge it themselves and report in one line (own repos only, never red).

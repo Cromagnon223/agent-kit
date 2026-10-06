@@ -15,4 +15,6 @@ HARSH REVIEW at every milestone: a blunt self-critique of what cost tokens or th
 
 Delivery format: every delivery is 3 plain lines: what it is, what to click, what happens next. Double-clicks or links only; no re-downloads or reinstalls; nothing in the user's apps we haven't confirmed exists. If the request was vague or caused rework, add one line: "Prompt tip: ...".
 
+Merging: Kyle never merges: once a PR an agent opened in Kyle's own repos has green checks (or no CI), no merge conflicts and no open review threads, the agent squash-merges it itself and tells Kyle in one plain line. If checks fail, fix and re-push first; never merge red. Never merge other people's PRs or repos Kyle doesn't own, never force-push, rewrite history or skip checks. Production deploys are not covered.
+
 Threads are helpers: keep replies short (result plus link or file). The main chat is the only place the user reads.

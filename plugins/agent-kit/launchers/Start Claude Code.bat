@@ -21,5 +21,5 @@ echo   1. Just type what you want and press Enter.
 echo   2. For a big job with several parts:  /orchestra:orchestra run ^<what you want built^>
 echo   3. Type /exit to quit.
 echo.
-claude
+claude --model sonnet
 pause

@@ -1,0 +1,18 @@
+{
+  "name": "orchestra",
+  "description": "Orchestra 1.1.1 tuned by Agent Kit: 30K token budget per helper (was 80K) and a goal line on every plan. Context-optimized task orchestration for AI agents. Decomposes complex tasks into a DAG and dispatches focused sub-agents with minimal context prompts.",
+  "version": "1.1.1-ak.1",
+  "author": {
+    "name": "Carlo"
+  },
+  "repository": "https://github.com/carloluisito/orchestra",
+  "license": "MIT",
+  "keywords": [
+    "orchestration",
+    "context-optimization",
+    "task-decomposition",
+    "sub-agents",
+    "token-tracking",
+    "dag"
+  ]
+}

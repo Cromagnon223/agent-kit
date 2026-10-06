@@ -1,0 +1,21 @@
+{
+  "name": "agent-kit",
+  "owner": {
+    "name": "Kyle Marchetti"
+  },
+  "metadata": {
+    "description": "Agent Kit for Claude Code: token-saving agents, self-tuning advice from your logs, and Orchestra."
+  },
+  "plugins": [
+    {
+      "name": "agent-kit",
+      "source": "./plugins/agent-kit",
+      "description": "Lean Sonnet/Haiku helper agents, token-saving rules, self-tuning advice from your logs, and a token dashboard."
+    },
+    {
+      "name": "orchestra",
+      "source": "./plugins/orchestra",
+      "description": "Orchestra (carloluisito/orchestra) with a 30K budget per helper: splits big jobs into small focused steps."
+    }
+  ]
+}

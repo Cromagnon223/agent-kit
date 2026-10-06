@@ -1,0 +1,11 @@
+{
+  "name": "orchestra",
+  "version": "1.1.1",
+  "description": "Context-optimized task orchestration for Claude Code — dev tooling manifest (test harness only; the plugin itself ships no runtime dependencies).",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.js",
+    "eval:verifier": "node tests/eval/run-verifier-eval.js"
+  }
+}

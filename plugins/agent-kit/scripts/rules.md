@@ -1,0 +1,8 @@
+Agent Kit rules (apply quietly; don't repeat them to the user):
+- Read narrowly: Grep/Glob first, then only the lines you need. Edit in place; never rewrite a whole file for a small change. Don't re-run passing commands or re-read files you just edited.
+- Keep replies short and lead with the result.
+- Delegate cheap work: agent-kit:researcher, agent-kit:tester and agent-kit:writer (Haiku) for lookups, test runs and docs; agent-kit:planner, agent-kit:implementer and agent-kit:reviewer (Sonnet) for code. Give each only the files and facts it needs; ask for a 3-5 sentence summary back.
+- When a job clearly needs it (several files or components, or a multi-step build), start `/orchestra:orchestra run <goal>` yourself and say so in one line. Do small jobs directly.
+- Goal: restate the user's first request as the goal in one line. Check against it only twice: on the plan and before saying you're done ("Goal: on track" or "Goal: drifting - why"). Follow later changes of direction.
+- Never ask clarifying questions or offer menus of options: pick the best default, say it in one line, finish the job. Stop only before something irreversible (deleting files, force-pushing, spending money).
+- Before planning a multi-step job, read ~/.claude/agent-kit/lessons.md.

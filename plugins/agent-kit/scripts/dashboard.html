@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Dashboard</title>
+<link rel="icon" href="data:,">
+<style>
+/* Offline page: system fonts, inline SVG charts, data embedded by dashboard.ps1. */
+:root {
+  color-scheme: light;
+  --bg: #f6f6f4; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #77756f; --line: #e2e1dc; --grid: #ecebe7;
+  --opus: #2a78d6; --sonnet: #eb6834; --haiku: #1baf7a; --other: #9a9893; --bar: #2a78d6;
+  --good: #1f7a3e; --bad: #b3362b;
+  --f: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #99978f; --line: #33332f; --grid: #2a2a27;
+    --opus: #3987e5; --sonnet: #d95926; --haiku: #199e70; --other: #75736d; --bar: #3987e5; --good: #6fcf86; --bad: #f07d72;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #99978f; --line: #33332f; --grid: #2a2a27;
+  --opus: #3987e5; --sonnet: #d95926; --haiku: #199e70; --other: #75736d; --bar: #3987e5; --good: #6fcf86; --bad: #f07d72;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 16px; }
+header h1 { margin: 0; font-size: 1.45rem; }
+header p { margin: 4px 0 0; color: var(--ink-2); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.card h2 { margin: 0 0 4px; font-size: 1rem; }
+.card .sub { margin: 0 0 12px; color: var(--ink-2); font-size: .88rem; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.filters button { font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.filters .note { color: var(--muted); font-size: .82rem; margin-left: 6px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile .label { color: var(--ink-2); font-size: .85rem; }
+.tile .big { font-size: 1.7rem; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.tile .from { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.tile .chg { font-size: .85rem; font-weight: 600; }
+.chg.good { color: var(--good); } .chg.bad { color: var(--bad); } .chg.flat { color: var(--muted); }
+.tile .why { color: var(--muted); font-size: .8rem; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .82rem; color: var(--ink-2); margin-bottom: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font: 11px var(--f); }
+.tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: .8rem; box-shadow: 0 4px 16px rgba(0,0,0,.12); min-width: 160px; display: none; z-index: 2; }
+.tip b { display: block; margin-bottom: 2px; }
+.tip .r { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.tip .r i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 16px; }
+.hrow { display: grid; grid-template-columns: minmax(0, 15em) minmax(0, 1fr) 4.5em; gap: 10px; align-items: center; font-size: .85rem; padding: 4px 0; }
+.hrow .lbl { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow .lbl small { display: block; color: var(--muted); font-size: .76rem; white-space: normal; }
+.hrow .track { height: 12px; background: var(--grid); border-radius: 0 4px 4px 0; overflow: hidden; }
+.hrow .track i { display: block; height: 100%; border-radius: 0 4px 4px 0; }
+.hrow .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--ink-2); font-weight: 600; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.pill { font-size: .75rem; border-radius: 999px; padding: 1px 8px; border: 1px solid var(--line); color: var(--ink-2); }
+.pill.after { border-color: var(--good); color: var(--good); }
+.empty { color: var(--ink-2); padding: 24px 0; text-align: center; }
+.advice { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.advice li::marker { color: var(--opus); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Claude Code token dashboard</h1>
+    <p id="intro"></p>
+  </header>
+  <div class="filters" role="group" aria-label="Time range">
+    <button data-days="30">Last 30 days</button><button data-days="90">Last 90 days</button><button data-days="0">All time</button>
+    <span class="note" id="rangeNote"></span>
+  </div>
+  <section class="card">
+    <h2 id="cmpTitle">Before vs after Agent Kit</h2>
+    <p class="sub" id="cmpSub"></p>
+    <div class="tiles" id="tiles"></div>
+  </section>
+  <section class="card" id="adviceCard" hidden>
+    <h2>What Claude is told this week</h2>
+    <p class="sub">Every Claude Code session starts with these lines, worked out from your logs. They also update the lessons file Claude reads before big jobs.</p>
+    <ul class="advice" id="advice"></ul>
+  </section>
+  <section class="card">
+    <h2>Tokens per day, by model</h2>
+    <p class="sub">Each bar is one day. Hover a bar for the numbers. The dashed line marks when Agent Kit was installed.</p>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="daily"><div class="tip" id="tip"></div></div>
+  </section>
+  <div class="two">
+    <section class="card">
+      <h2>Where the tokens go</h2>
+      <p class="sub">Re-read tokens come from Claude's cache and cost about a tenth of new ones.</p>
+      <div id="types"></div>
+    </section>
+    <section class="card">
+      <h2>Tokens by model</h2>
+      <p class="sub">Sonnet and Haiku cost a fraction of Opus. More work there is cheaper.</p>
+      <div id="models"></div>
+    </section>
+  </div>
+  <section class="card">
+    <h2>Recent sessions</h2>
+    <p class="sub">The 20 newest Claude Code conversations.</p>
+    <div class="tablewrap"><table id="sessions"></table></div>
+  </section>
+</div>
+<script>
+const DATA = /*__DATA__*/null;
+const FAM = [["Opus", "--opus"], ["Sonnet", "--sonnet"], ["Haiku", "--haiku"], ["Other", "--other"]];
+const fam = (m) => /opus/i.test(m) ? "Opus" : /sonnet/i.test(m) ? "Sonnet" : /haiku/i.test(m) ? "Haiku" : "Other";
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (n) => n >= 1e9 ? (n / 1e9).toFixed(1) + "B" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e4 ? Math.round(n / 1e3) + "K" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(Math.round(n));
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const dayKey = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const niceDate = (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+// Claude Code stores project folders as their path with separators turned into dashes.
+const projName = (p) => { const parts = String(p).split("-").filter(Boolean); return parts.slice(-2).join("-") || p; };
+
+// One record per model reply. A reply can be logged several times while it streams, so keep the last copy.
+const seen = new Map();
+for (const r of (DATA && DATA.rows) || []) seen.set(r[7], r);
+const ALL = [...seen.values()].map((r) => {
+  const t = new Date(r[0]);
+  return { t, day: dayKey(t), sid: r[1], model: r[2], fam: fam(r[2]), inp: r[3], cw: r[4], cr: r[5], out: r[6], proj: r[8], side: !!r[9], total: r[3] + r[4] + r[5] + r[6] };
+}).filter((r) => !isNaN(r.t)).sort((a, b) => a.t - b.t);
+const INSTALLED = DATA && DATA.installed ? new Date(DATA.installed) : null;
+
+let range = 30;
+try { const v = localStorage.getItem("tokdash-range"); if (v !== null) range = Number(v); } catch (e) {}
+
+function sessionsOf(rows) {
+  const m = new Map();
+  for (const r of rows) {
+    let s = m.get(r.sid);
+    if (!s) { s = { sid: r.sid, start: r.t, proj: r.proj, replies: 0, total: 0, byFam: {} }; m.set(r.sid, s); }
+    s.replies++; s.total += r.total; s.byFam[r.fam] = (s.byFam[r.fam] || 0) + r.total;
+    if (r.t < s.start) s.start = r.t;
+  }
+  return [...m.values()];
+}
+function stats(rows) {
+  const ses = sessionsOf(rows), total = rows.reduce((a, r) => a + r.total, 0);
+  const cheap = rows.filter((r) => r.fam === "Sonnet" || r.fam === "Haiku").reduce((a, r) => a + r.total, 0);
+  const cr = rows.reduce((a, r) => a + r.cr, 0), freshIn = rows.reduce((a, r) => a + r.inp + r.cw, 0);
+  return { sessions: ses.length, total, perSession: ses.length ? total / ses.length : 0,
+           cheapShare: total ? cheap / total : 0, cacheShare: cr + freshIn ? cr / (cr + freshIn) : 0 };
+}
+
+function render() {
+  document.querySelectorAll(".filters button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.days) === range)));
+  const cutoff = range ? new Date(Date.now() - range * 864e5) : null;
+  const rows = cutoff ? ALL.filter((r) => r.t >= cutoff) : ALL;
+  const gen = DATA && DATA.generated ? new Date(DATA.generated) : new Date();
+  document.getElementById("intro").textContent = ALL.length
+    ? "Read from this PC's Claude Code logs on " + gen.toLocaleString() + ". Nothing was sent anywhere. Double-click Token Dashboard.bat again to refresh."
+    : "No Claude Code sessions found on this PC yet. Use Claude Code for a while, then double-click Token Dashboard.bat again.";
+  document.getElementById("rangeNote").textContent = rows.length ? rows.length.toLocaleString() + " replies in " + sessionsOf(rows).length + " sessions" : "";
+  renderCompare(rows); renderDaily(rows, cutoff); renderTypes(rows); renderModels(rows); renderSessions(rows);
+}
+
+function tile(label, after, before, kind, why) {
+  const fmtv = kind === "pct" ? (v) => Math.round(v * 100) + "%" : fmt;
+  let chg = "";
+  if (before != null && (kind === "pct" || before > 0)) {
+    const d = kind === "pct" ? (after - before) * 100 : (after - before) / before * 100;
+    const goodUp = kind === "pct";
+    const cls = Math.abs(d) < 1 ? "flat" : (d > 0) === goodUp ? "good" : "bad";
+    const word = kind === "pct" ? (d >= 0 ? "+" : "") + Math.round(d) + " points" : (d >= 0 ? "+" : "") + Math.round(d) + "%";
+    chg = '<span class="chg ' + cls + '">' + word + "</span>";
+  }
+  return '<div class="tile"><span class="label">' + esc(label) + '</span><span class="big">' + fmtv(after) + "</span>" +
+    (before != null ? '<span class="from">was ' + fmtv(before) + " before " + chg + "</span>" : "") + '<span class="why">' + esc(why) + "</span></div>";
+}
+function renderCompare(rows) {
+  const t = document.getElementById("tiles"), sub = document.getElementById("cmpSub");
+  if (!INSTALLED) {
+    const s = stats(rows);
+    document.getElementById("cmpTitle").textContent = "Your baseline";
+    sub.textContent = "Agent Kit isn't installed yet, so these are your numbers before it. Install it and this card will compare before and after.";
+    t.innerHTML = tile("Tokens per session", s.perSession, null, "n", "Lower is better.") +
+      tile("Work done by Sonnet or Haiku", s.cheapShare, null, "pct", "Higher is cheaper.") +
+      tile("Input re-read from cache", s.cacheShare, null, "pct", "Higher is cheaper.");
+    return;
+  }
+  const b = stats(rows.filter((r) => r.t < INSTALLED)), a = stats(rows.filter((r) => r.t >= INSTALLED));
+  document.getElementById("cmpTitle").textContent = "Before vs after Agent Kit";
+  sub.textContent = "Installed " + INSTALLED.toLocaleDateString() + ". " + b.sessions + " sessions before, " + a.sessions + " after" +
+    (b.sessions && a.sessions ? "." : ". Use Claude Code on both sides of the install date to see a comparison; try All time if the range cuts one side off.");
+  t.innerHTML = tile("Tokens per session", a.perSession, b.sessions ? b.perSession : null, "n", "Lower is better. Lean prompts and focused helpers shrink this.") +
+    tile("Work done by Sonnet or Haiku", a.cheapShare, b.sessions ? b.cheapShare : null, "pct", "Higher is cheaper. The helper agents run on these models.") +
+    tile("Input re-read from cache", a.cacheShare, b.sessions ? b.cacheShare : null, "pct", "Higher is cheaper. Cached input costs about a tenth.");
+}
+
+function renderDaily(rows, cutoff) {
+  const box = document.getElementById("daily"), tip = document.getElementById("tip");
+  box.querySelector("svg")?.remove(); box.querySelector(".empty")?.remove();
+  const legend = document.getElementById("legend");
+  const present = FAM.filter(([f]) => rows.some((r) => r.fam === f));
+  legend.innerHTML = present.map(([f, v]) => '<span><i style="background:var(' + v + ')"></i>' + f + "</span>").join("");
+  if (!rows.length) { box.insertAdjacentHTML("beforeend", '<div class="empty">No sessions in this range.</div>'); return; }
+  const start = cutoff ? new Date(cutoff) : new Date(rows[0].t);
+  start.setHours(0, 0, 0, 0);
+  const days = [];
+  for (let d = new Date(start); d <= new Date(); d.setDate(d.getDate() + 1)) days.push({ key: dayKey(d), date: new Date(d), byFam: {}, total: 0 });
+  const idx = new Map(days.map((d, i) => [d.key, i]));
+  for (const r of rows) { const d = days[idx.get(r.day)]; if (!d) continue; d.byFam[r.fam] = (d.byFam[r.fam] || 0) + r.total; d.total += r.total; }
+  const W = Math.max(320, box.clientWidth || 1000), H = W < 600 ? 220 : 260, L = 48, R = 8, T = 12, B = 26, pw = W - L - R, ph = H - T - B;
+  const max = Math.max(...days.map((d) => d.total), 1);
+  const step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step;
+  const y = (v) => T + ph - (v / top) * ph, slot = pw / days.length, bw = Math.max(1, Math.min(28, slot - 2));
+  let s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Tokens per day by model">';
+  for (let k = 0; k <= 4; k++) {
+    const v = (top / 4) * k;
+    s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--grid)"/>';
+    s += '<text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + fmt(v) + "</text>";
+  }
+  const every = Math.ceil(days.length / Math.max(3, Math.floor(W / 110)));
+  days.forEach((d, i) => {
+    const x = L + i * slot + (slot - bw) / 2;
+    let acc = 0;
+    const segs = present.filter(([f]) => d.byFam[f]);
+    segs.forEach(([f, v], j) => {
+      const h = (d.byFam[f] / top) * ph, yTop = y(acc + d.byFam[f]);
+      const last = j === segs.length - 1;
+      const gap = acc > 0 ? 2 : 0;  // 2px surface gap between stacked segments
+      const r = last ? Math.min(4, bw / 2, h) : 0;
+      const hh = Math.max(0, h - gap);
+      s += r ? '<path d="M' + x + "," + (yTop + hh) + "V" + (yTop + r) + "Q" + x + "," + yTop + " " + (x + r) + "," + yTop + "H" + (x + bw - r) + "Q" + (x + bw) + "," + yTop + " " + (x + bw) + "," + (yTop + r) + "V" + (yTop + hh) + 'Z" fill="var(' + v + ')"/>'
+             : '<rect x="' + x + '" y="' + yTop + '" width="' + bw + '" height="' + hh + '" fill="var(' + v + ')"/>';
+      acc += d.byFam[f];
+    });
+    if (i % every === 0) s += '<text x="' + (L + i * slot + slot / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + niceDate(d.date) + "</text>";
+    s += '<rect class="hit" data-i="' + i + '" x="' + (L + i * slot) + '" y="' + T + '" width="' + slot + '" height="' + ph + '" fill="transparent"/>';
+  });
+  if (INSTALLED && idx.has(dayKey(INSTALLED))) {
+    const ix = L + idx.get(dayKey(INSTALLED)) * slot;
+    s += '<line x1="' + ix + '" x2="' + ix + '" y1="' + T + '" y2="' + (T + ph) + '" stroke="var(--ink-2)" stroke-dasharray="4 4" stroke-width="1.5"/>';
+    const nearEnd = ix > W * 0.75;
+    s += '<text x="' + (nearEnd ? ix - 6 : ix + 6) + '" y="' + (T + 10) + '" text-anchor="' + (nearEnd ? "end" : "start") + '" style="fill:var(--ink-2);font-weight:600">Agent Kit installed</text>';
+  }
+  s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ph) + '" y2="' + (T + ph) + '" stroke="var(--line)"/></svg>';
+  box.insertAdjacentHTML("afterbegin", s);
+  const svg = box.querySelector("svg");
+  svg.querySelectorAll(".hit").forEach((h) => {
+    h.addEventListener("mousemove", (e) => {
+      const d = days[Number(h.dataset.i)];
+      tip.innerHTML = "<b>" + d.date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + "</b>" +
+        (d.total ? present.filter(([f]) => d.byFam[f]).map(([f, v]) => '<div class="r"><span><i style="background:var(' + v + ')"></i>' + f + "</span><span>" + fmt(d.byFam[f]) + "</span></div>").join("") +
+          '<div class="r"><span>Total</span><span>' + fmt(d.total) + "</span></div>" : '<div class="r"><span>No use</span></div>');
+      tip.style.display = "block";
+      const bx = box.getBoundingClientRect();
+      let left = e.clientX - bx.left + 14; if (left + tip.offsetWidth > bx.width) left = e.clientX - bx.left - tip.offsetWidth - 14;
+      tip.style.left = Math.max(0, left) + "px"; tip.style.top = Math.max(0, e.clientY - bx.top - 20) + "px";
+    });
+    h.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+  });
+}
+
+function hbars(el, items, color) {
+  const max = Math.max(...items.map((i) => i.v), 1);
+  el.innerHTML = items.map((i) => '<div class="hrow"><span class="lbl">' + esc(i.label) + (i.note ? "<small>" + esc(i.note) + "</small>" : "") +
+    '</span><span class="track"><i style="width:' + (100 * i.v / max).toFixed(1) + "%;background:var(" + (i.color || color) + ')"></i></span><span class="v">' + fmt(i.v) + "</span></div>").join("") ||
+    '<div class="empty">No data in this range.</div>';
+}
+function renderTypes(rows) {
+  const sum = (k) => rows.reduce((a, r) => a + r[k], 0);
+  hbars(document.getElementById("types"), rows.length ? [
+    { label: "Re-read from cache", note: "Context Claude already saw. Cheapest.", v: sum("cr") },
+    { label: "Saved to cache", note: "New context stored for re-use.", v: sum("cw") },
+    { label: "New input", note: "Read once, not cached.", v: sum("inp") },
+    { label: "Written by Claude", note: "Replies, code and tool calls. Priciest per token.", v: sum("out") },
+  ] : [], "--bar");
+}
+function renderModels(rows) {
+  const m = new Map();
+  for (const r of rows) m.set(r.model, (m.get(r.model) || 0) + r.total);
+  hbars(document.getElementById("models"), [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
+    .map(([k, v]) => ({ label: k.replace(/^claude-/, ""), v, color: (FAM.find(([f]) => f === fam(k)) || FAM[3])[1] })), "--bar");
+}
+function renderSessions(rows) {
+  const ses = sessionsOf(rows).sort((a, b) => b.start - a.start).slice(0, 20);
+  const tbl = document.getElementById("sessions");
+  if (!ses.length) { tbl.innerHTML = '<tr><td class="empty">No sessions in this range.</td></tr>'; return; }
+  tbl.innerHTML = '<thead><tr><th>Started</th><th>Project</th><th>Mostly</th><th class="n">Replies</th><th class="n">Tokens</th>' + (INSTALLED ? "<th>When</th>" : "") + "</tr></thead><tbody>" +
+    ses.map((s) => {
+      const main = Object.entries(s.byFam).sort((a, b) => b[1] - a[1])[0][0];
+      const col = (FAM.find(([f]) => f === main) || FAM[3])[1];
+      return "<tr><td>" + s.start.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + "</td><td>" + esc(projName(s.proj)) +
+        '</td><td><span class="dot" style="background:var(' + col + ')"></span>' + main + '</td><td class="n">' + s.replies + '</td><td class="n">' + fmt(s.total) + "</td>" +
+        (INSTALLED ? "<td>" + (s.start >= INSTALLED ? '<span class="pill after">after</span>' : '<span class="pill">before</span>') + "</td>" : "") + "</tr>";
+    }).join("") + "</tbody>";
+}
+
+if (DATA && DATA.advice && DATA.advice.lines && DATA.advice.lines.length) {
+  document.getElementById("adviceCard").hidden = false;
+  document.getElementById("advice").innerHTML = DATA.advice.lines.map((l) => "<li>" + esc(l) + "</li>").join("");
+}
+document.querySelectorAll(".filters button").forEach((b) => b.addEventListener("click", () => {
+  range = Number(b.dataset.days); try { localStorage.setItem("tokdash-range", String(range)); } catch (e) {}
+  render();
+}));
+render();
+let resizeTimer;
+addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(render, 150); });
+</script>
+</body>
+</html>

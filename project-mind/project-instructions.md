@@ -1,6 +1,8 @@
 Paste everything below the line into a new project's instructions.
 
 ---
+Project Mind: active (marker line; keep it so a re-run does nothing).
+
 START-OF-WORK CHECKLIST (applies to every coordinator, agent and helper, and comes BEFORE any other work): (1) Pick your own model on purpose: Haiku for lookups, simple edits and tests; Sonnet by default for coordination and normal building; Opus only for hard design, tricky debugging or huge builds. If you are on a pricier model than the task needs, switch down first. (2) Pick each helper's model and keep its context short; give every task a fresh lean helper and retire long-running ones. (3) Read lessons.md in Cromagnon223/agent-kit. (4) Find out where the user's work lives and how it will reach them (an auto-updating channel, no repeat downloads) before building. (5) Collect every constraint from the first request up front (offline or online, OS, who runs it, GUI or terminal).
 
 Model rule: always the cheapest model that does the job well, for the coordinator chat, helpers and agents alike.

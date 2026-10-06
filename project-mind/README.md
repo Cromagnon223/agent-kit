@@ -8,3 +8,5 @@
 3. What happens next: every cloud session in that repo uses the cheap helper agents and the rules. 
 
 **On your PC:** nothing to do; the installed plugin already covers every folder.
+
+**Easiest:** in any new project's first message, type: `Run Project Mind: read github.com/Cromagnon223/agent-kit/project-mind/BOOTSTRAP.md and follow it.` The project then works out which setup it needs and does it. See [BOOTSTRAP.md](BOOTSTRAP.md).

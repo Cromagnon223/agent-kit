@@ -35,3 +35,11 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - A new project can't know about our kit: give it one first-message line (Project Mind bootstrap) that detects the setup it needs and applies it itself.
 - Kyle never merges anything for a project: agents open the PR, wait for green checks, then squash-merge it themselves and report in one line (own repos only, never red).
 - Every project gets a plain-words, graded Project Mind report page (project-mind/REPORT.md); refresh it at each milestone and mark estimated numbers.
+- Media project (2026-10-06): a stale memory line ("Kyle types the TubeGen go-ahead") stalled a video for hours. Before asking Kyle for anything, check the rule behind the ask is still true.
+- TubeGen makes the script and voiceover only; our pipeline builds the video. Never let TubeGen generate visuals or the video.
+- When TubeGen's 3-project limit blocks a new video, archive the oldest finished project yourself (standing OK from Kyle).
+- The Remote Control thread on Kyle's PC can't dispatch GitHub Actions (no gh): a cloud thread runs the render and the coordinator relays the link (send_message to the PC session fails).
+- Coordinator got an F for relaying asks to Kyle instead of fixing the root cause (stale rule, missing allow rule). When work stalls on Kyle, fix the cause first.
+- When a safety check blocks a step, say in the same message whether Kyle's OK can clear it; if not, hand him the manual steps right there. A "reply go" ask that can't unblock anything costs a round trip (Project Mind thread, graded C).
+- [idea:claude] Memory-rot sweep at each milestone: re-read every "Kyle does X" line in project memory and delete the ones the current process no longer needs.
+- [idea:claude] A thread can read token totals only for its own session (list_events on other sessions returns not found), so the coordinator should collect per-thread tokens for the report page.

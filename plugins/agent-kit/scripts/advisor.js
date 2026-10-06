@@ -16,6 +16,7 @@ const LESSONS = path.join(STATE, "lessons.md");
 const ROOT = __dirname;
 const DAYS = 7;
 const BIG = 20000; // a tool result this long gets re-read on every later turn of the session
+const REWORK = /\b(wrong|undo|revert|redo|try again|still (broken|not|failing)|(doesn'?t|didn'?t|does not|not) work|not what i|that'?s not|you (broke|missed|forgot))\b/i;
 
 const fam = (m) => /opus/i.test(m) ? "Opus" : /sonnet/i.test(m) ? "Sonnet" : /haiku/i.test(m) ? "Haiku" : "Other";
 const fmt = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : String(Math.round(n));
@@ -37,17 +38,22 @@ function walk(dir, out) {
 
 function summarizeFile(file) {
   const s = { replies: 0, tok: { inp: 0, cw: 0, cr: 0, out: 0 }, byFam: {}, sideByFam: {}, side: 0,
-              big: 0, bigChars: 0, delegations: 0, orchestra: 0, seen: {} };
+              big: 0, bigChars: 0, delegations: 0, orchestra: 0, seen: {},
+              tasks: 0, rework: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0 };
+  const side = /[\\/]subagents[\\/]/.test(file);
   let text = "";
   try { text = fs.readFileSync(file, "utf8"); } catch (e) { return s; }
   for (const line of text.split("\n")) {
     if (!line) continue;
-    const isA = line.includes('"assistant"'), isToolResult = line.includes('"tool_result"');
-    if (!isA && !isToolResult) continue;
+    if (!line.includes('"assistant"') && !line.includes('"user"')) continue;
     let o; try { o = JSON.parse(line); } catch (e) { continue; }
     const m = o.message || {};
     if (o.type === "assistant" && m.usage && m.model !== "<synthetic>") {
       const key = (m.id || "") + "|" + (o.requestId || "");
+      const txt = (Array.isArray(m.content) ? m.content : []).filter((c) => c.type === "text").map((c) => c.text || "").join("\n");
+      if (/goal:\s*on track/i.test(txt)) s.goalOn++;
+      if (/goal:\s*drift/i.test(txt)) s.goalDrift++;
+      if (!side && !o.isSidechain && m.stop_reason === "end_turn" && /\?\s*$/.test(txt)) s.questions++;
       for (const c of Array.isArray(m.content) ? m.content : []) {
         if (c.type !== "tool_use") continue;
         if (c.name === "Task" || c.name === "Agent") s.delegations++;
@@ -57,11 +63,19 @@ function summarizeFile(file) {
       s.seen[key] = 1;
       const u = m.usage, t = (u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.output_tokens || 0);
       s.replies++;
+      if (!side && !o.isSidechain) s.mainReplies++;
       s.tok.inp += u.input_tokens || 0; s.tok.cw += u.cache_creation_input_tokens || 0;
       s.tok.cr += u.cache_read_input_tokens || 0; s.tok.out += u.output_tokens || 0;
       const f = fam(m.model || "");
       s.byFam[f] = (s.byFam[f] || 0) + t;
-      if (o.isSidechain || /[\\/]subagents[\\/]/.test(file)) { s.side += t; s.sideByFam[f] = (s.sideByFam[f] || 0) + t; }
+      if (o.isSidechain || side) { s.side += t; s.sideByFam[f] = (s.sideByFam[f] || 0) + t; }
+    } else if (o.type === "user" && !side && !o.isSidechain && !o.isMeta && (typeof m.content === "string" ||
+               (Array.isArray(m.content) && m.content.some((c) => c.type === "text") && !m.content.some((c) => c.type === "tool_result")))) {
+      // a real prompt typed by the person (not a tool result, not a command echo)
+      const t = typeof m.content === "string" ? m.content : m.content.filter((c) => c.type === "text").map((c) => c.text || "").join(" ");
+      if (/^\s*<(command|local-command|system-reminder)/.test(t)) continue;
+      s.tasks++;
+      if (s.tasks > 1 && REWORK.test(t.slice(0, 300))) s.rework++;
     } else if (o.type === "user" && Array.isArray(m.content)) {
       for (const c of m.content) {
         if (c.type !== "tool_result") continue;
@@ -74,29 +88,36 @@ function summarizeFile(file) {
   return s;
 }
 
-function collect() {
+function collect(fromDays, toDays) {
+  fromDays = fromDays || 0; toDays = toDays || DAYS;
   const cachePath = path.join(STATE, "advisor-cache.json");
   const cache = readJSON(cachePath, {});
   const fresh = {};
-  const since = Date.now() - DAYS * 864e5;
+  const since = Date.now() - toDays * 864e5, until = Date.now() - fromDays * 864e5;
   const files = walk(path.join(CLAUDE, "projects"), []);
   const agg = { sessions: 0, replies: 0, tok: { inp: 0, cw: 0, cr: 0, out: 0 }, byFam: {}, sideByFam: {}, side: 0,
-                big: 0, bigChars: 0, delegations: 0, orchestra: 0, longSessions: 0, maxReplies: 0 };
+                big: 0, bigChars: 0, delegations: 0, orchestra: 0, longSessions: 0, maxReplies: 0,
+                tasks: 0, rework: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0, bigSessions: 0, bigOrch: 0, last: null };
   for (const f of files) {
     let st; try { st = fs.statSync(f); } catch (e) { continue; }
-    if (st.mtimeMs < since) continue;
-    const key = f + "|" + st.size + "|" + Math.round(st.mtimeMs);
+    if (st.mtimeMs < since || st.mtimeMs >= until) continue;
+    const key = "v2|" + f + "|" + st.size + "|" + Math.round(st.mtimeMs);
     const s = cache[key] || summarizeFile(f);
     fresh[key] = s;
     if (!s.replies) continue;
     const isSub = /[\\/]subagents[\\/]/.test(f);
-    if (!isSub) { agg.sessions++; if (s.replies > 120) agg.longSessions++; agg.maxReplies = Math.max(agg.maxReplies, s.replies); }
+    if (!isSub) {
+      agg.sessions++; if (s.replies > 120) agg.longSessions++; agg.maxReplies = Math.max(agg.maxReplies, s.replies);
+      if (!agg.last || st.mtimeMs > agg.last.mtime) agg.last = Object.assign({ mtime: st.mtimeMs, file: f }, s);
+    }
     agg.replies += s.replies;
     for (const k in s.tok) agg.tok[k] += s.tok[k];
     for (const k in s.byFam) agg.byFam[k] = (agg.byFam[k] || 0) + s.byFam[k];
     for (const k in s.sideByFam) agg.sideByFam[k] = (agg.sideByFam[k] || 0) + s.sideByFam[k];
-    for (const k of ["side", "big", "bigChars", "delegations", "orchestra"]) agg[k] += s[k];
+    for (const k of ["side", "big", "bigChars", "delegations", "orchestra", "tasks", "rework", "questions", "mainReplies", "goalOn", "goalDrift"]) agg[k] += s[k] || 0;
+    if (!isSub && s.mainReplies >= 60) { agg.bigSessions++; if (s.delegations || s.orchestra) agg.bigOrch++; }
   }
+  if (agg.last) delete agg.last.mtime;
   try { writeFile(cachePath, JSON.stringify(fresh)); } catch (e) {}
   agg.total = agg.tok.inp + agg.tok.cw + agg.tok.cr + agg.tok.out;
   return agg;
@@ -131,9 +152,46 @@ function patterns(a) {
   return out.sort((x, y) => y.impact - x.impact);
 }
 
+// ---------- scorecard: how well Claude did, graded A-F ----------
+// Each metric scores 0-100; null means "not enough data" and is left out of the grade.
+const clamp = (x) => Math.max(0, Math.min(100, Math.round(x)));
+const METRICS = {
+  tokens:    { label: "Tokens per task",   tip: "fewer tokens per task: read narrowly and keep replies short" },
+  cheap:     { label: "Cheap-model share", tip: "move more work to Haiku/Sonnet helpers instead of Opus" },
+  rework:    { label: "Rework",            tip: "less rework: re-read the request and check the result before saying done" },
+  questions: { label: "Questions asked",   tip: "zero questions: pick a sensible default, say which, and finish" },
+  goal:      { label: "Goal on track",     tip: "stay on the goal: check the plan against the first request" },
+  orchestra: { label: "Orchestra use",     tip: "on multi-part jobs, run /orchestra:orchestra or delegate to agent-kit helpers" },
+};
+function score(a) {
+  if (!a || !a.replies) return null;
+  const tasks = Math.max(1, a.tasks), cheapTok = (a.byFam.Haiku || 0) + (a.byFam.Sonnet || 0);
+  const m = {
+    tokens: { value: fmt(a.total / tasks) + " per task", score: clamp(100 - 50 * Math.log10(a.total / tasks / 3e5)) },
+    cheap: { value: pct(cheapTok, a.total) + " on Haiku/Sonnet", score: clamp(40 + 200 * cheapTok / a.total) },
+    rework: { value: a.rework + " of " + a.tasks + " prompts", score: a.tasks > 1 ? clamp(100 - 300 * a.rework / a.tasks) : null },
+    questions: { value: a.questions + " in " + a.tasks + " tasks", score: a.mainReplies ? clamp(100 - 400 * a.questions / Math.max(a.tasks, 1)) : null },
+    goal: { value: a.goalOn + " on track, " + a.goalDrift + " drifting", score: a.goalOn + a.goalDrift ? clamp(100 * a.goalOn / (a.goalOn + a.goalDrift)) : null },
+    orchestra: { value: a.bigOrch + " of " + a.bigSessions + " big sessions", score: a.bigSessions ? clamp(100 * a.bigOrch / a.bigSessions) : null },
+  };
+  const scored = Object.keys(m).filter((k) => m[k].score !== null);
+  const total = Math.round(scored.reduce((t, k) => t + m[k].score, 0) / scored.length);
+  const weakest = scored.sort((x, y) => m[x].score - m[y].score)[0];
+  return { score: total, grade: total >= 90 ? "A" : total >= 80 ? "B" : total >= 70 ? "C" : total >= 60 ? "D" : "F", weakest, metrics: m };
+}
+function scorecard(a) {
+  const week = score(a), prev = score(collect(DAYS, 2 * DAYS));
+  if (!week) return null;
+  for (const k in week.metrics) Object.assign(week.metrics[k], METRICS[k]);
+  const d = prev ? week.score - prev.score : 0;
+  return { week, prev: prev && { score: prev.score, grade: prev.grade }, trend: !prev ? "new" : d > 3 ? "up" : d < -3 ? "down" : "flat",
+           last: a.last ? score(Object.assign({}, a.last, { bigSessions: a.last.mainReplies >= 60 ? 1 : 0,
+             bigOrch: a.last.mainReplies >= 60 && (a.last.delegations || a.last.orchestra) ? 1 : 0, total: Object.values(a.last.tok).reduce((x, y) => x + y, 0) })) : null };
+}
+
 function advise() {
   const a = collect();
-  const res = { generated: new Date().toISOString(), days: DAYS, stats: a, lines: [], top: null };
+  const res = { generated: new Date().toISOString(), days: DAYS, stats: a, lines: [], top: null, score: null };
   if (!a.replies) {
     res.lines = ["No Claude Code use in the last " + DAYS + " days yet; follow the token-saving habits in CLAUDE.md."];
     return res;
@@ -149,18 +207,25 @@ function advise() {
   } else {
     res.lines.push("No big waste found. Keep reading narrowly and delegating cheap work.");
   }
-  if (p[1]) res.lines.push("Also: " + p[1].rule);
+  const sc = res.score = scorecard(a);
+  if (sc) {
+    const w = sc.week, arrow = { up: "↑", down: "↓", flat: "→", new: "" }[sc.trend];
+    res.focus = { key: "focus-" + w.weakest, rule: "Focus: " + METRICS[w.weakest].tip + ".", waste: METRICS[w.weakest].label + " scored " + w.metrics[w.weakest].score + "/100" };
+    res.lines.push("Your score: " + w.grade + " (" + w.score + (sc.prev ? ", " + arrow + " from " + sc.prev.score : "") + "). Focus this session: " + METRICS[w.weakest].tip + ".");
+  } else if (p[1]) res.lines.push("Also: " + p[1].rule);
+  if (a.last) delete a.last.file;
   return res;
 }
 
 // ---------- lessons file ----------
 function updateLessons(res) {
   const store = readJSON(path.join(STATE, "lessons.json"), { rules: [] });
-  if (res.top) {
-    store.rules = store.rules.filter((r) => r.key !== res.top.key);
-    store.rules.unshift({ key: res.top.key, date: res.generated.slice(0, 10), rule: res.top.rule, why: res.top.waste });
-    store.rules = store.rules.slice(0, 10);
+  for (const r of [res.focus, res.top]) {
+    if (!r) continue;
+    store.rules = store.rules.filter((x) => x.key !== r.key && !(r.key.startsWith("focus-") && x.key.startsWith("focus-")));
+    store.rules.unshift({ key: r.key, date: res.generated.slice(0, 10), rule: r.rule, why: r.waste });
   }
+  store.rules = store.rules.slice(0, 10);
   writeFile(path.join(STATE, "lessons.json"), JSON.stringify(store, null, 2));
   let seed = "";
   try { seed = fs.readFileSync(path.join(ROOT, "..", "lessons.md"), "utf8").trim(); } catch (e) {}

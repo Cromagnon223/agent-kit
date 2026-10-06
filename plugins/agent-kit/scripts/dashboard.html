@@ -11,20 +11,20 @@
   color-scheme: light;
   --bg: #f6f6f4; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #77756f; --line: #e2e1dc; --grid: #ecebe7;
   --opus: #2a78d6; --sonnet: #eb6834; --haiku: #1baf7a; --other: #9a9893; --bar: #2a78d6;
-  --good: #1f7a3e; --bad: #b3362b;
+  --good: #1f7a3e; --bad: #b3362b; --warn: #a86a00;
   --f: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --bg: #121211; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #99978f; --line: #33332f; --grid: #2a2a27;
-    --opus: #3987e5; --sonnet: #d95926; --haiku: #199e70; --other: #75736d; --bar: #3987e5; --good: #6fcf86; --bad: #f07d72;
+    --opus: #3987e5; --sonnet: #d95926; --haiku: #199e70; --other: #75736d; --bar: #3987e5; --good: #6fcf86; --bad: #f07d72; --warn: #e0a43a;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #121211; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #99978f; --line: #33332f; --grid: #2a2a27;
-  --opus: #3987e5; --sonnet: #d95926; --haiku: #199e70; --other: #75736d; --bar: #3987e5; --good: #6fcf86; --bad: #f07d72;
+  --opus: #3987e5; --sonnet: #d95926; --haiku: #199e70; --other: #75736d; --bar: #3987e5; --good: #6fcf86; --bad: #f07d72; --warn: #e0a43a;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f); }
@@ -73,6 +73,18 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
 .empty { color: var(--ink-2); padding: 24px 0; text-align: center; }
 .advice { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
 .advice li::marker { color: var(--opus); }
+.score { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
+.badge { width: 92px; height: 92px; border-radius: 18px; display: grid; place-items: center; font-size: 3rem; font-weight: 700; color: var(--surface); background: var(--ink-2); }
+.badge.g-A, .badge.g-B { background: var(--good); } .badge.g-C { background: var(--warn); } .badge.g-D, .badge.g-F { background: var(--bad); }
+.score .num { font-size: 1.05rem; font-weight: 600; } .score .num .chg { font-size: .9rem; margin-left: 6px; }
+.metrics { display: grid; gap: 6px; margin-top: 10px; }
+.mrow { display: grid; grid-template-columns: minmax(110px, 160px) 1fr 34px; gap: 10px; align-items: center; font-size: .86rem; }
+.mrow .lbl small { display: block; color: var(--muted); font-size: .76rem; }
+.mrow .track { height: 8px; background: var(--grid); border-radius: 4px; overflow: hidden; }
+.mrow .fill { height: 100%; background: var(--opus); border-radius: 4px; }
+.mrow.weak .fill { background: var(--bad); } .mrow.weak .lbl { font-weight: 600; }
+.mrow .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+@media (max-width: 520px) { .score { grid-template-columns: 1fr; } }
 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
 </style>
 </head>
@@ -86,6 +98,11 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     <button data-days="30">Last 30 days</button><button data-days="90">Last 90 days</button><button data-days="0">All time</button>
     <span class="note" id="rangeNote"></span>
   </div>
+  <section class="card" id="scoreCard" hidden>
+    <h2>Claude's report card</h2>
+    <p class="sub">Graded from your own logs for the last 7 days. The weakest score becomes Claude's focus at the start of every session.</p>
+    <div class="score"><div class="badge" id="badge"></div><div><div class="num" id="scoreNum"></div><div class="metrics" id="metrics"></div></div></div>
+  </section>
   <section class="card">
     <h2 id="cmpTitle">Before vs after Agent Kit</h2>
     <p class="sub" id="cmpSub"></p>
@@ -307,6 +324,21 @@ function renderSessions(rows) {
     }).join("") + "</tbody>";
 }
 
+const SC = DATA && DATA.advice && DATA.advice.score;
+if (SC && SC.week) {
+  const w = SC.week, arrow = { up: ["↑", "good", "up"], down: ["↓", "bad", "down"], flat: ["→", "flat", "steady"] }[SC.trend];
+  document.getElementById("scoreCard").hidden = false;
+  const b = document.getElementById("badge"); b.textContent = w.grade; b.className = "badge g-" + w.grade;
+  b.setAttribute("aria-label", "Grade " + w.grade);
+  document.getElementById("scoreNum").innerHTML = esc(w.score + " out of 100") +
+    (arrow && SC.prev ? '<span class="chg ' + arrow[1] + '">' + arrow[0] + " " + arrow[2] + " from " + SC.prev.score + " last week</span>" : '<span class="chg flat">first week graded</span>') +
+    (SC.last ? '<span class="chg flat">· last session ' + esc(SC.last.grade + " (" + SC.last.score + ")") + "</span>" : "");
+  document.getElementById("metrics").innerHTML = Object.keys(w.metrics).map((k) => {
+    const m = w.metrics[k], na = m.score === null || m.score === undefined;
+    return '<div class="mrow' + (k === w.weakest ? " weak" : "") + '" title="' + esc(m.tip || "") + '"><div class="lbl">' + esc(m.label) + (k === w.weakest ? " (focus)" : "") +
+      "<small>" + esc(na ? "not enough data yet" : m.value) + '</small></div><div class="track"><div class="fill" style="width:' + (na ? 0 : m.score) + '%"></div></div><div class="v">' + (na ? "–" : m.score) + "</div></div>";
+  }).join("");
+}
 if (DATA && DATA.advice && DATA.advice.lines && DATA.advice.lines.length) {
   document.getElementById("adviceCard").hidden = false;
   document.getElementById("advice").innerHTML = DATA.advice.lines.map((l) => "<li>" + esc(l) + "</li>").join("");

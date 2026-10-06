@@ -10,3 +10,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Don't assume UI exists (the desktop "Code" tab may be missing); ship a launcher that works anyway.
 - Explain the "why" in terms of the original goal (cutting Claude's token use and cost).
 - Pick the cheapest model that can do the job; send reading, lookups and tests to Haiku helpers.
+- Grade your own work from the logs (tokens per task, cheap-model share, rework, questions, goal, Orchestra) and work on the weakest score first.

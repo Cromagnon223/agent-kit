@@ -11,3 +11,7 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Explain the "why" in terms of the original goal (cutting Claude's token use and cost).
 - Pick the cheapest model that can do the job; send reading, lookups and tests to Haiku helpers.
 - Grade your own work from the logs (tokens per task, cheap-model share, rework, questions, goal, Orchestra) and work on the weakest score first.
+- Every delivery says, in 3 plain lines, what it is, what to do (clicks only), and what happens next.
+- Before shipping, run a user-check: double-clicks only, no re-download, no UI you haven't confirmed exists on their setup.
+- Ship the deliverable that serves the goal first; side tools come later.
+- Watch the confusion rate (messages that are "what is this / what do I do" or corrections); it is the costliest waste.

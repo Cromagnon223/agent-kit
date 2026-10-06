@@ -16,6 +16,7 @@ const LESSONS = path.join(STATE, "lessons.md");
 const ROOT = __dirname;
 const DAYS = 7;
 const BIG = 20000; // a tool result this long gets re-read on every later turn of the session
+const CONFUSED = /(\b(what is (this|that|it)|what do i( do)?|where do i|how do i|what now|what next|i don'?t (get|understand|see)|is this not|why (do|did|didn'?t)|huh)\b|\?\?)/i;
 const REWORK = /\b(wrong|undo|revert|redo|try again|still (broken|not|failing)|(doesn'?t|didn'?t|does not|not) work|not what i|that'?s not|you (broke|missed|forgot))\b/i;
 
 const fam = (m) => /opus/i.test(m) ? "Opus" : /sonnet/i.test(m) ? "Sonnet" : /haiku/i.test(m) ? "Haiku" : "Other";
@@ -39,7 +40,7 @@ function walk(dir, out) {
 function summarizeFile(file) {
   const s = { replies: 0, tok: { inp: 0, cw: 0, cr: 0, out: 0 }, byFam: {}, sideByFam: {}, side: 0,
               big: 0, bigChars: 0, delegations: 0, orchestra: 0, seen: {},
-              tasks: 0, rework: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0 };
+              tasks: 0, rework: 0, confused: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0 };
   const side = /[\\/]subagents[\\/]/.test(file);
   let text = "";
   try { text = fs.readFileSync(file, "utf8"); } catch (e) { return s; }
@@ -75,7 +76,9 @@ function summarizeFile(file) {
       const t = typeof m.content === "string" ? m.content : m.content.filter((c) => c.type === "text").map((c) => c.text || "").join(" ");
       if (/^\s*<(command|local-command|system-reminder)/.test(t)) continue;
       s.tasks++;
-      if (s.tasks > 1 && REWORK.test(t.slice(0, 300))) s.rework++;
+      const head = t.slice(0, 300), redo = s.tasks > 1 && REWORK.test(head);
+      if (redo) s.rework++;
+      if (redo || (s.tasks > 1 && CONFUSED.test(head))) s.confused++;  // the person had to correct or decode Claude's output
     } else if (o.type === "user" && Array.isArray(m.content)) {
       for (const c of m.content) {
         if (c.type !== "tool_result") continue;
@@ -97,11 +100,11 @@ function collect(fromDays, toDays) {
   const files = walk(path.join(CLAUDE, "projects"), []);
   const agg = { sessions: 0, replies: 0, tok: { inp: 0, cw: 0, cr: 0, out: 0 }, byFam: {}, sideByFam: {}, side: 0,
                 big: 0, bigChars: 0, delegations: 0, orchestra: 0, longSessions: 0, maxReplies: 0,
-                tasks: 0, rework: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0, bigSessions: 0, bigOrch: 0, last: null };
+                tasks: 0, rework: 0, confused: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0, bigSessions: 0, bigOrch: 0, last: null };
   for (const f of files) {
     let st; try { st = fs.statSync(f); } catch (e) { continue; }
     if (st.mtimeMs < since || st.mtimeMs >= until) continue;
-    const key = "v2|" + f + "|" + st.size + "|" + Math.round(st.mtimeMs);
+    const key = "v3|" + f + "|" + st.size + "|" + Math.round(st.mtimeMs);
     const s = cache[key] || summarizeFile(f);
     fresh[key] = s;
     if (!s.replies) continue;
@@ -114,7 +117,7 @@ function collect(fromDays, toDays) {
     for (const k in s.tok) agg.tok[k] += s.tok[k];
     for (const k in s.byFam) agg.byFam[k] = (agg.byFam[k] || 0) + s.byFam[k];
     for (const k in s.sideByFam) agg.sideByFam[k] = (agg.sideByFam[k] || 0) + s.sideByFam[k];
-    for (const k of ["side", "big", "bigChars", "delegations", "orchestra", "tasks", "rework", "questions", "mainReplies", "goalOn", "goalDrift"]) agg[k] += s[k] || 0;
+    for (const k of ["side", "big", "bigChars", "delegations", "orchestra", "tasks", "rework", "confused", "questions", "mainReplies", "goalOn", "goalDrift"]) agg[k] += s[k] || 0;
     if (!isSub && s.mainReplies >= 60) { agg.bigSessions++; if (s.delegations || s.orchestra) agg.bigOrch++; }
   }
   if (agg.last) delete agg.last.mtime;
@@ -158,6 +161,7 @@ const clamp = (x) => Math.max(0, Math.min(100, Math.round(x)));
 const METRICS = {
   tokens:    { label: "Tokens per task",   tip: "fewer tokens per task: read narrowly and keep replies short" },
   cheap:     { label: "Cheap-model share", tip: "move more work to Haiku/Sonnet helpers instead of Opus" },
+  confusion: { label: "Confusion rate",    tip: "no confusion: every delivery says what it is, what to click, and what happens next", weight: 2 },
   rework:    { label: "Rework",            tip: "less rework: re-read the request and check the result before saying done" },
   questions: { label: "Questions asked",   tip: "zero questions: pick a sensible default, say which, and finish" },
   goal:      { label: "Goal on track",     tip: "stay on the goal: check the plan against the first request" },
@@ -169,13 +173,15 @@ function score(a) {
   const m = {
     tokens: { value: fmt(a.total / tasks) + " per task", score: clamp(100 - 50 * Math.log10(a.total / tasks / 3e5)) },
     cheap: { value: pct(cheapTok, a.total) + " on Haiku/Sonnet", score: clamp(40 + 200 * cheapTok / a.total) },
+    confusion: { value: (a.confused || 0) + " of " + a.tasks + " prompts", score: a.tasks > 1 ? clamp(100 - 400 * (a.confused || 0) / a.tasks) : null },
     rework: { value: a.rework + " of " + a.tasks + " prompts", score: a.tasks > 1 ? clamp(100 - 300 * a.rework / a.tasks) : null },
     questions: { value: a.questions + " in " + a.tasks + " tasks", score: a.mainReplies ? clamp(100 - 400 * a.questions / Math.max(a.tasks, 1)) : null },
     goal: { value: a.goalOn + " on track, " + a.goalDrift + " drifting", score: a.goalOn + a.goalDrift ? clamp(100 * a.goalOn / (a.goalOn + a.goalDrift)) : null },
     orchestra: { value: a.bigOrch + " of " + a.bigSessions + " big sessions", score: a.bigSessions ? clamp(100 * a.bigOrch / a.bigSessions) : null },
   };
   const scored = Object.keys(m).filter((k) => m[k].score !== null);
-  const total = Math.round(scored.reduce((t, k) => t + m[k].score, 0) / scored.length);
+  const wt = (k) => METRICS[k].weight || 1;  // confusion counts double: it is time the person spent fixing our output
+  const total = Math.round(scored.reduce((t, k) => t + wt(k) * m[k].score, 0) / scored.reduce((t, k) => t + wt(k), 0));
   const weakest = scored.sort((x, y) => m[x].score - m[y].score)[0];
   return { score: total, grade: total >= 90 ? "A" : total >= 80 ? "B" : total >= 70 ? "C" : total >= 60 ? "D" : "F", weakest, metrics: m };
 }

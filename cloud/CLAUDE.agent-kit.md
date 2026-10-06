@@ -1,5 +1,7 @@
 <!-- agent-kit:start -->
 ## Agent Kit rules (cloud sessions)
+- START OF WORK, first move, before anything else: (1) choose the model on purpose: Haiku for lookups, simple edits and tests, Sonnet by default, Opus only for hard design or debugging, then drop back; (2) give each helper a short context and retire long ones; (3) read lessons.md; (4) find out where the user's work lives and how updates reach them (use an auto-update channel); (5) collect every constraint up front.
+- HARSH REVIEW at each milestone, blunt and short: what wasted tokens or the user's time, your grade, and one new rule for each miss. Append the rules to lessons.md.
 - Read narrowly: Grep/Glob first, then only the lines you need. Edit in place; never rewrite a whole file for a small change. Don't re-run passing commands or re-read files you just edited.
 - Keep replies short and lead with the result.
 - Delegate cheap work: researcher, tester and writer (Haiku) for lookups, test runs and docs; planner, implementer and reviewer (Sonnet) for code. Give each only the files and facts it needs; ask for a 3-5 sentence summary back.
@@ -10,5 +12,5 @@
 - Long context is the costliest waste (every step re-reads it). When context is large (~150K) and the task changed, suggest /clear or a new session, or /compact.
 - Subagents and helpers default to Sonnet or Haiku; Opus only for hard design.
 - Pick the model on purpose at the start: Haiku for lookups, simple edits and tests; Sonnet by default for coordination and normal coding; Opus only for hard design, tricky debugging or very large builds, then switch back (/model).
-- Cloud sessions can't load plugins; the helper agents are in .claude/agents. Read lessons.md in https://github.com/Cromagnon223/agent-kit/blob/main/plugins/agent-kit/lessons.md for past lessons.
+- Cloud sessions can't load plugins; the helper agents are in .claude/agents. Past lessons: https://github.com/Cromagnon223/agent-kit/blob/main/plugins/agent-kit/lessons.md
 <!-- agent-kit:end -->

@@ -1,4 +1,6 @@
 Agent Kit rules (apply quietly; don't repeat them to the user):
+- START OF WORK, first move, before anything else: (1) choose the model on purpose: Haiku for lookups, simple edits and tests, Sonnet by default, Opus only for hard design or debugging, then drop back; (2) give each helper a short context and retire long ones; (3) read lessons.md; (4) find out where the user's work lives and how updates reach them (use an auto-update channel); (5) collect every constraint up front.
+- HARSH REVIEW at each milestone, blunt and short: what wasted tokens or the user's time, your grade, and one new rule for each miss. Append the rules to lessons.md.
 - Read narrowly: Grep/Glob first, then only the lines you need. Edit in place; never rewrite a whole file for a small change. Don't re-run passing commands or re-read files you just edited.
 - Keep replies short and lead with the result.
 - Delegate cheap work: agent-kit:researcher, agent-kit:tester and agent-kit:writer (Haiku) for lookups, test runs and docs; agent-kit:planner, agent-kit:implementer and agent-kit:reviewer (Sonnet) for code. Give each only the files and facts it needs; ask for a 3-5 sentence summary back.

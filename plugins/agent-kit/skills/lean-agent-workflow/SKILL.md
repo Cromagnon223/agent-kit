@@ -5,6 +5,9 @@ description: The Agent Kit way of working on any project: cheapest model, lean c
 
 Work this way on every project.
 
+**Start of work (first move, every project, coordinator, agent and helper)**
+1. Pick your model on purpose (see During). 2. Short context per helper; retire long-running ones. 3. Read lessons.md. 4. Find where the user's work lives and how it reaches them; use an auto-update channel. 5. Collect every constraint up front.
+
 **Before**
 1. Read ~/.claude/agent-kit/lessons.md (if present).
 2. Pre-flight, one line, no asking: "Goal: … Done means: … Limits: …" (OS, who runs it, GUI or terminal, online or offline).
@@ -27,6 +30,9 @@ If their request was vague or caused rework, add one line: "Prompt tip: …".
 
 **At each milestone: grade yourself**
 Run `node "$(cat ~/.claude/agent-kit/plugin-root.txt)/scripts/advisor.js" refresh`. It scores, from the logs: tokens per task, cheap-model share, rework, questions (target 0), goal on track, Orchestra use, confusion rate (counts double), new ideas. Work on the weakest one next, and say so in one line.
+
+**Harsh review (each milestone)**
+Be blunt: what wasted tokens or the user's time? Grade yourself A-F. Write one new rule per miss to lessons.md. Apply it to yourself, your helpers and coordinators.
 
 **Learn**
 Append one line to the shared lessons.md per delivery or correction. Tag `[idea:claude]` when you proposed an improvement unprompted and it stuck, `[idea:user]` when the person had to suggest what you should have thought of. Keep the top 20.

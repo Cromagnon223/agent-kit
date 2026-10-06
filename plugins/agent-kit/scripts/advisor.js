@@ -163,7 +163,7 @@ function updateLessons(res) {
   }
   writeFile(path.join(STATE, "lessons.json"), JSON.stringify(store, null, 2));
   let seed = "";
-  try { seed = fs.readFileSync(path.join(ROOT, "lessons-seed.md"), "utf8").trim(); } catch (e) {}
+  try { seed = fs.readFileSync(path.join(ROOT, "..", "lessons.md"), "utf8").trim(); } catch (e) {}
   const md = ["# Agent Kit lessons", "", "Updated automatically at the end of each Claude Code session from your own token logs. Read this before planning a multi-step job.", "",
     "## This week", ...res.lines.map((l) => "- " + l), "",
     "## Rules learned from your logs (newest first)", ...(store.rules.length ? store.rules.map((r) => "- " + r.date + ": " + r.rule + " (seen: " + r.why + ")") : ["- None yet."]),

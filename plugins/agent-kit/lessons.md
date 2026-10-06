@@ -34,3 +34,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Give Kyle one visual front door (Project Mind page) with three buttons by project type; never a folder of files to read.
 - A new project can't know about our kit: give it one first-message line (Project Mind bootstrap) that detects the setup it needs and applies it itself.
 - Kyle never merges anything for a project: agents open the PR, wait for green checks, then squash-merge it themselves and report in one line (own repos only, never red).
+- Every project gets a plain-words, graded Project Mind report page (project-mind/REPORT.md); refresh it at each milestone and mark estimated numbers.

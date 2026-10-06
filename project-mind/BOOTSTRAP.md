@@ -18,6 +18,8 @@ For the Claude that reads this: use a Haiku or Sonnet sized budget, ask the user
 If the project has no repo and no instructions are needed, say "nothing needed".
 
 ## 3. Report
+At each milestone, also build or refresh the project's performance report page by following `project-mind/REPORT.md`.
+
 3 plain lines. Mark anything you could not do as not done.
 
 ## Verification status

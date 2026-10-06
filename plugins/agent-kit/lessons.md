@@ -24,3 +24,6 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - [idea:claude] Prompt pre-flight: restate the request as Goal, Done means, Limits before big jobs, so constraints don't arrive one at a time.
 - [idea:claude] Cache-friendly layout: stable text first (rules, agents), changing text last (advice), since the prompt cache matches from the start of the prompt. Any edit to earlier text drops the cache for everything after it.
 - [idea:claude] Adaptive routing: after 3 clean sessions a helper moves one model tier cheaper; any rework moves it back up.
+- [idea:claude] Rotate helper sessions per task, or compact when context passes about 150K: long-lived threads re-read their whole history on every step (this project: about 75M Opus cache-read tokens, each request reloading about 375K).
+- [idea:claude] Default helpers and subagents to Sonnet or Haiku; keep Opus for hard design only (this project: only about 1% of tokens ran on Haiku).
+- [idea:claude] Make the kit apply to cloud Claude Code sessions and Kyle's other repos too, not only the local install.

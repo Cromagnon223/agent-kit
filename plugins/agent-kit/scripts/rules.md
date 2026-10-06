@@ -9,3 +9,5 @@ Agent Kit rules (apply quietly; don't repeat them to the user):
 - Pre-flight: before a big or Orchestra job, restate the request in one line (Goal, Done means, Limits) and go on without asking.
 - Keep CLAUDE.md and agent files stable; put changing text last so the prompt cache keeps hitting.
 - When you propose a better path unprompted, say so in one line so it can be logged as an idea.
+- Long context is the costliest waste (every step re-reads it). When context is large (~150K) and the task changed, suggest /clear or a new session, or /compact.
+- Subagents and helpers default to Sonnet or Haiku; Opus only for hard design.

@@ -2,7 +2,8 @@
 
 This kit makes Claude Code use fewer tokens and cheaper models, and it tunes itself from your own usage. It installs from this repo and updates itself.
 
-Starting a new project: [starter/](starter/README.md). How it all fits together, in plain words: [PIPELINE.md](PIPELINE.md).
+Project Mind (click-through page for new projects): https://claude.ai/artifact/DJm8QWPpbFis1VnhoRv5Nz
+Starting a new project: [project-mind/](project-mind/README.md). How it all fits together, in plain words: [PIPELINE.md](PIPELINE.md).
 
 ## Install (Windows, one time)
 

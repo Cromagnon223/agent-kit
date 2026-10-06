@@ -12,6 +12,7 @@ Work this way on every project.
 
 **During**
 - Cheapest model that can do it: Haiku helpers (agent-kit:researcher, tester, writer) for lookups, tests and docs; Sonnet helpers (planner, implementer, reviewer) for code. Opus only for hard judgment. Use the routing line in the session advice.
+- Choose the session model on purpose at the start: Haiku for lookups, simple edits and tests; Sonnet by default for coordination and normal coding; Opus only for hard design, tricky debugging or very large builds, then drop back with /model.
 - Lean context: Grep first, Read with offset/limit, short replies, no re-reading edited files.
 - Never ask questions or offer menus. Pick a default, say it in one line, finish. Stop only before something irreversible.
 - Goal check only at milestones (the plan, and before "done"): "Goal: on track" or "Goal: drifting - why".

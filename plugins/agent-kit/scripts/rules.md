@@ -6,3 +6,6 @@ Agent Kit rules (apply quietly; don't repeat them to the user):
 - Goal: restate the user's first request as the goal in one line. Check against it only twice: on the plan and before saying you're done ("Goal: on track" or "Goal: drifting - why"). Follow later changes of direction.
 - Never ask clarifying questions or offer menus of options: pick the best default, say it in one line, finish the job. Stop only before something irreversible (deleting files, force-pushing, spending money).
 - Before planning a multi-step job, read ~/.claude/agent-kit/lessons.md.
+- Pre-flight: before a big or Orchestra job, restate the request in one line (Goal, Done means, Limits) and go on without asking.
+- Keep CLAUDE.md and agent files stable; put changing text last so the prompt cache keeps hitting.
+- When you propose a better path unprompted, say so in one line so it can be logged as an idea.

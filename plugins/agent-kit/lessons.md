@@ -15,3 +15,12 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Before shipping, run a user-check: double-clicks only, no re-download, no UI you haven't confirmed exists on their setup.
 - Ship the deliverable that serves the goal first; side tools come later.
 - Watch the confusion rate (messages that are "what is this / what do I do" or corrections); it is the costliest waste.
+- [idea:user] Deliver through an auto-updating GitHub plugin instead of repeat zips (Kyle asked for it).
+- [idea:user] Use the token dashboard data to advise Claude itself at every session start (dashboard-driven self-tuning).
+- [idea:user] Check work against the first prompt's goal, at milestones only.
+- [idea:user] Prompt coaching: end a reply with one short "Prompt tip:" when a request was vague.
+- [idea:user] Kyle reads only the main chat; threads stay helpers.
+- [idea:user] Claude grades itself from the logs (the report card).
+- [idea:claude] Prompt pre-flight: restate the request as Goal, Done means, Limits before big jobs, so constraints don't arrive one at a time.
+- [idea:claude] Cache-friendly layout: stable text first (rules, agents), changing text last (advice), since the prompt cache matches from the start of the prompt. Any edit to earlier text drops the cache for everything after it.
+- [idea:claude] Adaptive routing: after 3 clean sessions a helper moves one model tier cheaper; any rework moves it back up.

@@ -17,6 +17,8 @@ const ROOT = __dirname;
 const DAYS = 7;
 const BIG = 20000; // a tool result this long gets re-read on every later turn of the session
 const CONFUSED = /(\b(what is (this|that|it)|what do i( do)?|where do i|how do i|what now|what next|i don'?t (get|understand|see)|is this not|why (do|did|didn'?t)|huh)\b|\?\?)/i;
+const PRAISE = /\b(that was (good|great|smart)|good (idea|call|thinking|job)|great (idea|job|work)|nice( one| work| idea)?|love (it|this|that))\b/i;
+const USER_IDEA = /\b(why (didn'?t|did not|don'?t) (you|the \w+|we)|you should(n'?t)? have|should('?ve| have) thought|why not just|why can'?t (you|we) just)\b/i;
 const REWORK = /\b(wrong|undo|revert|redo|try again|still (broken|not|failing)|(doesn'?t|didn'?t|does not|not) work|not what i|that'?s not|you (broke|missed|forgot))\b/i;
 
 const fam = (m) => /opus/i.test(m) ? "Opus" : /sonnet/i.test(m) ? "Sonnet" : /haiku/i.test(m) ? "Haiku" : "Other";
@@ -40,7 +42,7 @@ function walk(dir, out) {
 function summarizeFile(file) {
   const s = { replies: 0, tok: { inp: 0, cw: 0, cr: 0, out: 0 }, byFam: {}, sideByFam: {}, side: 0,
               big: 0, bigChars: 0, delegations: 0, orchestra: 0, seen: {},
-              tasks: 0, rework: 0, confused: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0 };
+              tasks: 0, rework: 0, confused: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0, praise: 0, userIdeas: 0, helpers: {} };
   const side = /[\\/]subagents[\\/]/.test(file);
   let text = "";
   try { text = fs.readFileSync(file, "utf8"); } catch (e) { return s; }
@@ -57,7 +59,11 @@ function summarizeFile(file) {
       if (!side && !o.isSidechain && m.stop_reason === "end_turn" && /\?\s*$/.test(txt)) s.questions++;
       for (const c of Array.isArray(m.content) ? m.content : []) {
         if (c.type !== "tool_use") continue;
-        if (c.name === "Task" || c.name === "Agent") s.delegations++;
+        if (c.name === "Task" || c.name === "Agent") {
+          s.delegations++;
+          const h = String((c.input || {}).subagent_type || "general-purpose").replace(/^agent-kit:/, "");
+          s.helpers[h] = (s.helpers[h] || 0) + 1;
+        }
         if (/orchestra/i.test(JSON.stringify(c.input || {}))) s.orchestra++;
       }
       if (s.seen[key]) continue; // a reply is logged once per content block; count its usage once
@@ -78,7 +84,9 @@ function summarizeFile(file) {
       s.tasks++;
       const head = t.slice(0, 300), redo = s.tasks > 1 && REWORK.test(head);
       if (redo) s.rework++;
-      if (redo || (s.tasks > 1 && CONFUSED.test(head))) s.confused++;  // the person had to correct or decode Claude's output
+      if (redo || (s.tasks > 1 && CONFUSED.test(head))) s.confused++;
+      if (PRAISE.test(head)) s.praise++;          // an idea of Claude's that the person liked
+      if (USER_IDEA.test(head)) s.userIdeas++;    // the person had to suggest what Claude should have thought of  // the person had to correct or decode Claude's output
     } else if (o.type === "user" && Array.isArray(m.content)) {
       for (const c of m.content) {
         if (c.type !== "tool_result") continue;
@@ -100,11 +108,11 @@ function collect(fromDays, toDays) {
   const files = walk(path.join(CLAUDE, "projects"), []);
   const agg = { sessions: 0, replies: 0, tok: { inp: 0, cw: 0, cr: 0, out: 0 }, byFam: {}, sideByFam: {}, side: 0,
                 big: 0, bigChars: 0, delegations: 0, orchestra: 0, longSessions: 0, maxReplies: 0,
-                tasks: 0, rework: 0, confused: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0, bigSessions: 0, bigOrch: 0, last: null };
+                tasks: 0, rework: 0, confused: 0, questions: 0, mainReplies: 0, goalOn: 0, goalDrift: 0, praise: 0, userIdeas: 0, bigSessions: 0, bigOrch: 0, last: null };
   for (const f of files) {
     let st; try { st = fs.statSync(f); } catch (e) { continue; }
     if (st.mtimeMs < since || st.mtimeMs >= until) continue;
-    const key = "v3|" + f + "|" + st.size + "|" + Math.round(st.mtimeMs);
+    const key = "v4|" + f + "|" + st.size + "|" + Math.round(st.mtimeMs);
     const s = cache[key] || summarizeFile(f);
     fresh[key] = s;
     if (!s.replies) continue;
@@ -117,7 +125,7 @@ function collect(fromDays, toDays) {
     for (const k in s.tok) agg.tok[k] += s.tok[k];
     for (const k in s.byFam) agg.byFam[k] = (agg.byFam[k] || 0) + s.byFam[k];
     for (const k in s.sideByFam) agg.sideByFam[k] = (agg.sideByFam[k] || 0) + s.sideByFam[k];
-    for (const k of ["side", "big", "bigChars", "delegations", "orchestra", "tasks", "rework", "confused", "questions", "mainReplies", "goalOn", "goalDrift"]) agg[k] += s[k] || 0;
+    for (const k of ["side", "big", "bigChars", "delegations", "orchestra", "tasks", "rework", "confused", "questions", "praise", "userIdeas", "mainReplies", "goalOn", "goalDrift"]) agg[k] += s[k] || 0;
     if (!isSub && s.mainReplies >= 60) { agg.bigSessions++; if (s.delegations || s.orchestra) agg.bigOrch++; }
   }
   if (agg.last) delete agg.last.mtime;
@@ -162,6 +170,7 @@ const METRICS = {
   tokens:    { label: "Tokens per task",   tip: "fewer tokens per task: read narrowly and keep replies short" },
   cheap:     { label: "Cheap-model share", tip: "move more work to Haiku/Sonnet helpers instead of Opus" },
   confusion: { label: "Confusion rate",    tip: "no confusion: every delivery says what it is, what to click, and what happens next", weight: 2 },
+  ideas:     { label: "New ideas",         tip: "think ahead: propose the better path before the person has to suggest it" },
   rework:    { label: "Rework",            tip: "less rework: re-read the request and check the result before saying done" },
   questions: { label: "Questions asked",   tip: "zero questions: pick a sensible default, say which, and finish" },
   goal:      { label: "Goal on track",     tip: "stay on the goal: check the plan against the first request" },
@@ -174,6 +183,8 @@ function score(a) {
     tokens: { value: fmt(a.total / tasks) + " per task", score: clamp(100 - 50 * Math.log10(a.total / tasks / 3e5)) },
     cheap: { value: pct(cheapTok, a.total) + " on Haiku/Sonnet", score: clamp(40 + 200 * cheapTok / a.total) },
     confusion: { value: (a.confused || 0) + " of " + a.tasks + " prompts", score: a.tasks > 1 ? clamp(100 - 400 * (a.confused || 0) / a.tasks) : null },
+    ideas: ((c, u) => ({ value: c + " from Claude, " + u + " the person had to suggest", score: c + u ? clamp(100 * c / (c + u)) : null }))(
+      (a.praise || 0) + (a.ideaTags ? a.ideaTags.claude : 0), (a.userIdeas || 0) + (a.ideaTags ? a.ideaTags.user : 0)),
     rework: { value: a.rework + " of " + a.tasks + " prompts", score: a.tasks > 1 ? clamp(100 - 300 * a.rework / a.tasks) : null },
     questions: { value: a.questions + " in " + a.tasks + " tasks", score: a.mainReplies ? clamp(100 - 400 * a.questions / Math.max(a.tasks, 1)) : null },
     goal: { value: a.goalOn + " on track, " + a.goalDrift + " drifting", score: a.goalOn + a.goalDrift ? clamp(100 * a.goalOn / (a.goalOn + a.goalDrift)) : null },
@@ -195,8 +206,41 @@ function scorecard(a) {
              bigOrch: a.last.mainReplies >= 60 && (a.last.delegations || a.last.orchestra) ? 1 : 0, total: Object.values(a.last.tok).reduce((x, y) => x + y, 0) })) : null };
 }
 
+// Lessons tagged [idea:claude] (Claude proposed it unprompted and it stuck) or [idea:user] (the person had to suggest it).
+function ideaTags() {
+  const t = { claude: 0, user: 0 };
+  for (const f of [path.join(ROOT, "..", "lessons.md"), path.join(STATE, "ideas.md")]) {
+    let x = ""; try { x = fs.readFileSync(f, "utf8"); } catch (e) {}
+    t.claude += (x.match(/\[idea:claude\]/g) || []).length; t.user += (x.match(/\[idea:user\]/g) || []).length;
+  }
+  return t;
+}
+
+// ---------- adaptive routing: move a helper down a model tier after clean runs, back up after rework ----------
+const TIERS = ["haiku", "sonnet", "opus"];
+const DEFAULT_TIER = { researcher: 0, tester: 0, writer: 0, planner: 1, implementer: 1, reviewer: 1 };
+function updateRouting(last) {
+  const p = path.join(STATE, "routing.json"), r = readJSON(p, { seen: "", helpers: {} });
+  if (!last || !last.helpers || last.file + "|" + last.replies === r.seen) return r;  // count each session once
+  r.seen = last.file + "|" + last.replies;
+  for (const h in last.helpers) {
+    const d = h in DEFAULT_TIER ? DEFAULT_TIER[h] : 2, x = r.helpers[h] || { tier: d, clean: 0 };
+    if (last.rework) { x.tier = Math.min(Math.max(x.tier + 1, d), 2); x.clean = 0; }   // rework: back up
+    else if (++x.clean >= 3 && x.tier > 0) { x.tier--; x.clean = 0; }                // 3 clean sessions: one tier cheaper
+    r.helpers[h] = x;
+  }
+  writeFile(p, JSON.stringify(r));
+  return r;
+}
+function routingLine(r) {
+  const moves = Object.keys(r.helpers).filter((h) => r.helpers[h].tier !== (h in DEFAULT_TIER ? DEFAULT_TIER[h] : 2))
+    .map((h) => (h in DEFAULT_TIER ? "agent-kit:" + h : h) + ' with model "' + TIERS[r.helpers[h].tier] + '"');
+  return moves.length ? "Routing (from clean runs): call " + moves.join(", ") + "." : null;
+}
+
 function advise() {
   const a = collect();
+  a.ideaTags = ideaTags();
   const res = { generated: new Date().toISOString(), days: DAYS, stats: a, lines: [], top: null, score: null };
   if (!a.replies) {
     res.lines = ["No Claude Code use in the last " + DAYS + " days yet; follow the token-saving habits in CLAUDE.md."];
@@ -219,6 +263,8 @@ function advise() {
     res.focus = { key: "focus-" + w.weakest, rule: "Focus: " + METRICS[w.weakest].tip + ".", waste: METRICS[w.weakest].label + " scored " + w.metrics[w.weakest].score + "/100" };
     res.lines.push("Your score: " + w.grade + " (" + w.score + (sc.prev ? ", " + arrow + " from " + sc.prev.score : "") + "). Focus this session: " + METRICS[w.weakest].tip + ".");
   } else if (p[1]) res.lines.push("Also: " + p[1].rule);
+  const route = routingLine(updateRouting(a.last));
+  if (route) res.lines.push(route);
   if (a.last) delete a.last.file;
   return res;
 }
@@ -275,7 +321,7 @@ function main() {
     try { rules = fs.readFileSync(path.join(ROOT, "rules.md"), "utf8").trim() + "\n"; } catch (e) {}
     const res = advise();
     writeFile(path.join(STATE, "advice.json"), JSON.stringify(res));
-    process.stdout.write(rules + "Advice from this PC's token logs:\n" + res.lines.slice(0, 4).map((l) => "- " + l).join("\n") + "\n");
+    process.stdout.write(rules + "Advice from this PC's token logs:\n" + res.lines.slice(0, 5).map((l) => "- " + l).join("\n") + "\n");
     return;
   }
   const res = advise();

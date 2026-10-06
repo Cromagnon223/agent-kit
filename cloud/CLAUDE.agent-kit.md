@@ -12,5 +12,6 @@
 - Long context is the costliest waste (every step re-reads it). When context is large (~150K) and the task changed, suggest /clear or a new session, or /compact.
 - Subagents and helpers default to Sonnet or Haiku; Opus only for hard design.
 - Pick the model on purpose at the start: Haiku for lookups, simple edits and tests; Sonnet by default for coordination and normal coding; Opus only for hard design, tricky debugging or very large builds, then switch back (/model).
+- Deliver in 3 plain lines: what it is, what to click, what happens next. Double-clicks or links only; no re-downloads. If the request was vague, add one "Prompt tip:" line.
 - Cloud sessions can't load plugins; the helper agents are in .claude/agents. Past lessons: https://github.com/Cromagnon223/agent-kit/blob/main/plugins/agent-kit/lessons.md
 <!-- agent-kit:end -->

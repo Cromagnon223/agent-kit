@@ -30,3 +30,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - [idea:user] Kyle had to ask whether this chat should be on Sonnet; pick the model on purpose at the start of every project.
 - [idea:claude] Cloud sessions can't install plugins: carry the kit to other repos as committed .claude/agents plus a CLAUDE.md block (see cloud/ and PIPELINE.md).
 - First move in this project was never to choose Sonnet; 99% of about 77M tokens ran on Opus. Choose the model first, every time.
+- Every new project starts from starter/ (paste-in instructions for app projects, cloud/ copy for GitHub repos); never rebuild the rules per project.

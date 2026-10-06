@@ -26,3 +26,5 @@ Claude Code running in the cloud (on claude.ai) cannot install plugins, even if 
 2. The block in `cloud/CLAUDE.agent-kit.md` onto the end of the repo's `CLAUDE.md`.
 
 This gives cloud sessions the helper agents and the rules, but not the report card, which needs the local logs. Nothing has been pushed to your other repos yet.
+
+Starting a new project? Copy-paste kit: [starter/README.md](starter/README.md).

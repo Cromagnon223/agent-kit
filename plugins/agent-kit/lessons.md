@@ -28,3 +28,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - [idea:claude] Default helpers and subagents to Sonnet or Haiku; keep Opus for hard design only (this project: only about 1% of tokens ran on Haiku).
 - [idea:claude] Make the kit apply to cloud Claude Code sessions and Kyle's other repos too, not only the local install.
 - [idea:user] Kyle had to ask whether this chat should be on Sonnet; pick the model on purpose at the start of every project.
+- [idea:claude] Cloud sessions can't install plugins: carry the kit to other repos as committed .claude/agents plus a CLAUDE.md block (see cloud/ and PIPELINE.md).

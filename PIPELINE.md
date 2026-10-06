@@ -17,3 +17,12 @@ The goal: Claude uses fewer tokens, picks cheaper models, and gets better at fin
 **7. Helpers get cheaper on their own.** After 3 clean sessions a helper moves to a cheaper model; any rework moves it back up.
 
 The detail for developers is in [README.md](README.md).
+
+## Cloud sessions and other repos
+
+Claude Code running in the cloud (on claude.ai) cannot install plugins, even if a repo's settings list them (checked in the docs: https://code.claude.com/docs/en/cloud-environments.md). It does read a repo's committed `.claude/agents/` folder and `CLAUDE.md`. So for any other repo, copy two things from the `cloud/` folder here:
+
+1. `cloud/.claude/agents/` into the repo's `.claude/agents/`.
+2. The block in `cloud/CLAUDE.agent-kit.md` onto the end of the repo's `CLAUDE.md`.
+
+This gives cloud sessions the helper agents and the rules, but not the report card, which needs the local logs. Nothing has been pushed to your other repos yet.

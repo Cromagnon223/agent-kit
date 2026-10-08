@@ -15,7 +15,9 @@ For the Claude that reads this: use a Haiku or Sonnet sized budget, ask the user
 
 **C.** Nothing to do. Say "the kit is already active here".
 
-If the project has no repo and no instructions are needed, say "nothing needed".
+**No repo? Make one.** If the project (case A or B) has no repo, create it yourself with the GitHub create-repository tool: under Cromagnon223, private, named after the project in kebab-case, with a short README. Then attach it to the project (`add_repo` or project settings as your tools allow) and do the repo setup above. Never ask Kyle to create or connect a repo. If your tools cannot create one, say so in one line and pass the job to a session that can (coordinator, or a thread with GitHub create access), never to Kyle.
+
+If the project has a repo, has no repo but cannot make one, and needs no instructions, say "nothing needed".
 
 ## 3. Report
 At each milestone, also build or refresh the project's performance report page by following `project-mind/REPORT.md`.

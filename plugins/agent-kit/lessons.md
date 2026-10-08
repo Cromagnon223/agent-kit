@@ -43,3 +43,10 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - When a safety check blocks a step, say in the same message whether Kyle's OK can clear it; if not, hand him the manual steps right there. A "reply go" ask that can't unblock anything costs a round trip (Project Mind thread, graded C).
 - [idea:claude] Memory-rot sweep at each milestone: re-read every "Kyle does X" line in project memory and delete the ones the current process no longer needs.
 - [idea:claude] A thread can read token totals only for its own session (list_events on other sessions returns not found), so the coordinator should collect per-thread tokens for the report page.
+- Kyle reads only the main chat: post every result there at once with the file attached. He re-asked for existing results 4+ times when they lived only in threads.
+- Before handing work to an outside agent (Pi, Cowork), find out which machine it runs on, so you know whether to give a path or a download.
+- Check the folder an agent will write into before handing off, so output doesn't land somewhere it can't be found or isn't allowed.
+- A Remote Control session on a PC with no GitHub auth can't push: publish through a cloud thread from a source-only zip in project files.
+- Count external helpers (Cowork, Pi) toward the 3-agent limit: overlapping ones caused a mislabelled export (one character saved under another's name).
+- A merge run on the PC was blocked by a permission check: export the branch from there and let a cloud thread open and merge the PR.
+- [idea:claude] Keep one always-current status page per project so "what's the status?" questions go away.

@@ -19,6 +19,8 @@ For the Claude that reads this: use a Haiku or Sonnet sized budget, ask the user
 
 If the project has a repo, has no repo but cannot make one, and needs no instructions, say "nothing needed".
 
+**Never guess.** Only state what you checked with a tool or can point to; say when something is inferred or unchecked. Unsure of a fact: look it up or leave it out. Unsure whether an action is safe or wanted: don't do it. (Unsure of a choice: pick a default and say which.)
+
 ## 3. Report
 At each milestone, also build or refresh the project's performance report page by following `project-mind/REPORT.md`.
 

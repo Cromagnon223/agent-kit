@@ -69,3 +69,5 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Read the data flag before tuning numbers: OPBB build 68 found giant bodies take every hit as guarded by reading the form stats flag, not by tuning Sengoku's numbers (his computer losses went from 10 of 12 to 2 of 12).
 - Aim a check picture at the one thing the change touches: OPBB build 70's wide screenshots cost three extra check runs before one aimed at the ship could tell right from wrong.
 - A lead that ends a reply with "say so if you'd rather" stalls against Kyle's no-questions rule; state the default taken instead (coordinator side, OPBB build 70).
+- When a queue is worked through as far as the original's code allows, the default is to continue down the parked list, not wait for input (OPBB builds 71-73).
+- A leftover item that needs an untraced fact is written up as "needs fact X" and skipped, not guessed (OPBB builds 71-73).

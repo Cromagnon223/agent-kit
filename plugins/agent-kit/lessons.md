@@ -61,3 +61,5 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - When a hit misses by a couple of frames, read the code that compares the times before measuring distances.
 - Hidden check runs and builds on the user's own PC must be capped (frame rate, cargo -j) or they slow the user's play; OPBB build 60.
 - [idea:claude] Units audit: mark every rate and time unit in the tracks' notes confirmed-in-code or inferred.
+- Check free disk and that the compiler is reachable from the shell before any scratch build on the user's PC (OPBB select track: a 2.7 GB build died at link on a drive with 2.6 GB free and had to be deleted).
+- Never do file I/O on the game's main or render thread per event: one log line per hit, opened and closed in a OneDrive folder, caused 0.18 s stutters at every hit (OPBB build 61).

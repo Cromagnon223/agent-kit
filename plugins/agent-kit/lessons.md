@@ -57,3 +57,7 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Leads keep build logs and file dumps out of their own context (write to a file, read the tail; send big reads to a subagent), so one lead lasts more builds before it has to be replaced.
 - The report page went 41 builds without a refresh. Refreshing it is part of the milestone, not an extra.
 - [idea:claude] Pace guard: when a lead sees a rate-limit event, it finishes the current build, posts it, and starts no new helper until the window resets.
+- A rate, unit or timing in a hand-off note needs the code that sets it, or the word inferred (OPBB: a guessed 30 fps ran every animation at half speed for 40 builds).
+- When a hit misses by a couple of frames, read the code that compares the times before measuring distances.
+- Hidden check runs and builds on the user's own PC must be capped (frame rate, cargo -j) or they slow the user's play; OPBB build 60.
+- [idea:claude] Units audit: mark every rate and time unit in the tracks' notes confirmed-in-code or inferred.

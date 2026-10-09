@@ -21,6 +21,8 @@ If the project has a repo, has no repo but cannot make one, and needs no instruc
 
 **Never guess.** Only state what you checked with a tool or can point to; say when something is inferred or unchecked. Unsure of a fact: look it up or leave it out. Unsure whether an action is safe or wanted: don't do it. (Unsure of a choice: pick a default and say which.)
 
+**Keep tokens low.** Coordinator only routes; each session checks its model first and switches to Sonnet or cheaper (Haiku for simple work, Opus/Fable only for hard design, with a one-line reason in the brief); one task per thread, retire it when done; big files and logs go in a file, not the chat. At milestones read the Usage panel: Coordinator share above 30% or any session above 2M tokens means fix the cause first.
+
 ## 3. Report
 At each milestone, also build or refresh the project's performance report page by following `project-mind/REPORT.md`.
 

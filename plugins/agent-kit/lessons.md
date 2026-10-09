@@ -50,3 +50,10 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Count external helpers (Cowork, Pi) toward the 3-agent limit: overlapping ones caused a mislabelled export (one character saved under another's name).
 - A merge run on the PC was blocked by a permission check: export the branch from there and let a cloud thread open and merge the PR.
 - [idea:claude] Keep one always-current status page per project so "what's the status?" questions go away.
+- OPBB port (2026-10-09, graded C): on a usage-capped plan, more parallel agents don't add throughput, they reach the 5-hour limit sooner. Four Opus agents hit it 3 times in one day, about 5h40m idle (timestamps in the chat). Run one lead plus at most one helper, picked by the next queue item.
+- Agents on the same PC hand notes to each other through a file on that disk (an inbox file the lead reads at each build start), not through coordinator relays that cost two extra sessions a turn.
+- Write "Done means" before build 1: the OPBB port learned "1v1 only" at build 41, after team-only builds (3v3, unity, partner AI) were already spent.
+- A parked Remote Control session restarts only when Kyle types in its thread, so every usage-limit stall costs him a message. Avoiding the limit beats any restart trick.
+- Leads keep build logs and file dumps out of their own context (write to a file, read the tail; send big reads to a subagent), so one lead lasts more builds before it has to be replaced.
+- The report page went 41 builds without a refresh. Refreshing it is part of the milestone, not an extra.
+- [idea:claude] Pace guard: when a lead sees a rate-limit event, it finishes the current build, posts it, and starts no new helper until the window resets.

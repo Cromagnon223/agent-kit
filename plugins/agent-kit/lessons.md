@@ -72,3 +72,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - When a queue is worked through as far as the original's code allows, the default is to continue down the parked list, not wait for input (OPBB builds 71-73).
 - A leftover item that needs an untraced fact is written up as "needs fact X" and skipped, not guessed (OPBB builds 71-73).
 - A shader disassembly is a readable source of truth for lighting and coordinate rules: read it before inventing a formula (OPBB builds 74 and 75 both came from one).
+- A rules check that confirms the port already matches is still worth a build: it turns "inferred" into "confirmed" in the notes and stops the next agent re-checking (OPBB build 79).

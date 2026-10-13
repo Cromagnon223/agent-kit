@@ -1,7 +1,7 @@
 # Build loop (for any project that builds, compiles, ports or decompiles)
 
 Learned on the One Piece Burning Blood port (opbb-decomp, 85 builds) and applied to the MB2 map maker (mb2-mapmaker PR #4).
-Any project that turns source into something runnable sets this up in its first build. Adapt names; keep the shape.
+Any project that turns source into something runnable sets this up in its first build. Adapt names; keep the shape. For a paste-in version with the working rules too, use [HANDOFF.md](HANDOFF.md).
 
 ## Set up once (first build)
 1. **One check command.** `tests/run.sh` (or the repo's equivalent) runs every check and prints one line per check (`ok name` / `FAIL name`). Full output goes to a log file (`.cache/test.log`); on failure it prints only the last ~15 lines. Agents never paste whole logs into context.

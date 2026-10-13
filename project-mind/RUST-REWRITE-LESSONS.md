@@ -1,6 +1,6 @@
 # Rust rewrite lessons (decompile a game, rewrite it in Rust/Bevy)
 
-From the One Piece Burning Blood port (`Cromagnon223/opbb-decomp`, builds 1 to 51 in the first project). Read this at the start of any game rewrite, together with [HANDOFF.md](HANDOFF.md) (general build rules), [BUILD-LOOP.md](BUILD-LOOP.md) (check command, facts ledger, inbox) and [lessons.md](../plugins/agent-kit/lessons.md). Those are not repeated here.
+From the One Piece Burning Blood port (`Cromagnon223/opbb-decomp`, builds 1 to 51 in the first project). Read this at the start of any game rewrite, together with [HANDOFF.md](HANDOFF.md) (general build rules), [BUILD-LOOP.md](BUILD-LOOP.md) (check command, facts ledger, inbox) and [lessons.md](../plugins/agent-kit/lessons.md). Those are not repeated here. [RUST-REWRITE.md](RUST-REWRITE.md) adds the crate split, fixed-tick simulation, run-time data, cargo habits and Bevy pitfalls (through build 87).
 
 **Proven** = it happened in the OPBB project (source named). **Suggestion** = inferred from it, not tried.
 

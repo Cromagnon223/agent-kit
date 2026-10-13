@@ -21,6 +21,9 @@ Work this way on every project.
 - Goal check only at milestones (the plan, and before "done"): "Goal: on track" or "Goal: drifting - why".
 - Build the deliverable that serves the goal first; side tools later.
 
+**Build loop (projects that build, compile, port or decompile)**
+In the first build, set up project-mind/BUILD-LOOP.md (github.com/Cromagnon223/agent-kit): one check command that prints one line per check and logs to a file, a real-engine check cached in `.cache/` and in CI, a confirmed/inferred facts ledger, an inbox file for agent notes, and one lead plus at most one helper.
+
 **Merging**
 Kyle never merges: once a PR an agent opened in Kyle's own repos has green checks (or no CI), no merge conflicts and no open review threads, the agent squash-merges it itself and tells Kyle in one plain line. If checks fail, fix and re-push first; never merge red. Never merge other people's PRs or repos Kyle doesn't own, never force-push, rewrite history or skip checks. Production deploys are not covered.
 

@@ -73,3 +73,6 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - A leftover item that needs an untraced fact is written up as "needs fact X" and skipped, not guessed (OPBB builds 71-73).
 - A shader disassembly is a readable source of truth for lighting and coordinate rules: read it before inventing a formula (OPBB builds 74 and 75 both came from one).
 - A rules check that confirms the port already matches is still worth a build: it turns "inferred" into "confirmed" in the notes and stops the next agent re-checking (OPBB build 79).
+- Build projects start with project-mind/BUILD-LOOP.md: one check command logging to a file, a cached real-engine check, a confirmed/inferred facts ledger and an inbox. MB2 (2026-10-13) got it in one PR; OPBB took 60+ builds to learn the same pieces.
+- A real-engine check must fail on a known-bad input before you trust it: MB2's first load test passed a truncated .bsp because the server crashed after printing the map name.
+- [idea:user] Turn one project's lessons into a reusable handoff for every project (Kyle, 2026-10-13: "for other project handoff").

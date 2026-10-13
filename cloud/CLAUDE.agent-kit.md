@@ -15,4 +15,5 @@
 - Deliver in 3 plain lines: what it is, what to click, what happens next. Double-clicks or links only; no re-downloads. If the request was vague, add one "Prompt tip:" line.
 - Cloud sessions can't load plugins; the helper agents are in .claude/agents. Past lessons: https://github.com/Cromagnon223/agent-kit/blob/main/plugins/agent-kit/lessons.md
 - Kyle never merges: once a PR an agent opened in Kyle's own repos has green checks (or no CI), no merge conflicts and no open review threads, the agent squash-merges it itself and tells Kyle in one plain line. If checks fail, fix and re-push first; never merge red. Never merge other people's PRs or repos Kyle doesn't own, never force-push, rewrite history or skip checks. Production deploys are not covered. (Cloud: use the GitHub MCP merge_pull_request tool with squash.)
+- Projects that build, compile, port or decompile: follow https://github.com/Cromagnon223/agent-kit/blob/main/project-mind/BUILD-LOOP.md from the first build (one check command, cached real-engine test, confirmed/inferred facts ledger, inbox file, one lead plus one helper).
 <!-- agent-kit:end -->

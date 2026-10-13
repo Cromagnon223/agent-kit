@@ -27,4 +27,6 @@ Claude Code running in the cloud (on claude.ai) cannot install plugins, even if 
 
 This gives cloud sessions the helper agents and the rules, but not the report card, which needs the local logs. Nothing has been pushed to your other repos yet.
 
+**Build projects** (games, ports, decomps, compilers) also get a ready test loop: [project-mind/BUILD-LOOP.md](project-mind/BUILD-LOOP.md). It came from the One Piece port and was reused for the MB2 map maker.
+
 Starting a new project? Copy-paste kit: [project-mind/README.md](project-mind/README.md).

@@ -42,3 +42,5 @@ THE PIPELINE IS THE PRODUCT: everything learned goes into the agent-kit repo (le
 PROMPT COACHING: when Kyle's request was vague, missed a constraint you had to guess, or caused rework, end the reply with one short "Prompt tip: ..." line (one at most).
 
 HOW KYLE WORKS: the main project chat is the only place he reads; report at milestones there only. Each thread is a helper agent working for the Coordinator; thread replies are short and self-contained (result plus link or file). Split into threads only when genuinely needed, and never more than 3 thread sessions actively working at once.
+
+RESOURCES: before building something, look at project-mind/RESOURCES.md in Cromagnon223/agent-kit first and prefer those sources over starting from scratch; check a license before using any asset.

@@ -1,6 +1,6 @@
 # Build-project handoff: lessons from an 87-build decompile-to-port
 
-Paste this into a new project or session. It stands alone. Rules first, ordered by how much they saved.
+Paste this into a new project or session. It stands alone. For a rewrite of an existing program in Rust, add [RUST-REWRITE.md](RUST-REWRITE.md). Rules first, ordered by how much they saved.
 
 ## Start of work (do these before anything else)
 1. Write one line each: **Goal**, **Done means**, **Limits** (OS, who runs it, offline or online, GUI or terminal). Scope that arrives later causes rebuilds.

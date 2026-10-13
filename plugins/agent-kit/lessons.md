@@ -77,3 +77,4 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - A real-engine check must fail on a known-bad input before you trust it: MB2's first load test passed a truncated .bsp because the server crashed after printing the map name.
 - [idea:user] Turn one project's lessons into a reusable handoff for every project (Kyle, 2026-10-13: "for other project handoff").
 - A new build project gets project-mind/HANDOFF.md pasted in at the start: one page, ordered by payoff, standalone (Kyle, 2026-10-13: lessons from the One Piece port for MB2). Also: count a reported symptom with a fix-off switch before fixing it, and write patch scripts with the editor tool, not shell heredocs.
+- Rust/Bevy game rewrites start from project-mind/RUST-REWRITE-LESSONS.md: setup, crates, hand-overs, Windows build checks and delivery, each marked proven or suggestion (OPBB port, 2026-10-13).

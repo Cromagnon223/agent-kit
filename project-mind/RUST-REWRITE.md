@@ -1,6 +1,6 @@
 # Rust rewrite lessons: rebuilding a program or game in Rust from its decompile
 
-These come from an 87-build Rust/Bevy rewrite of a PC fighting game, built from a Ghidra decompile while reading the original's data from the user's install. General workflow rules (sessions, checks, facts ledger, inbox, no questions) are in [HANDOFF.md](HANDOFF.md) and are not repeated here. Highest payoff first.
+These come from an 87-build Rust/Bevy rewrite of a PC fighting game, built from a Ghidra decompile while reading the original's data from the user's install. General workflow rules (sessions, checks, facts ledger, inbox, no questions) are in [HANDOFF.md](HANDOFF.md) and are not repeated here. [RUST-REWRITE-LESSONS.md](RUST-REWRITE-LESSONS.md) covers setup, hand-overs and delivery from builds 1-51; read both. Highest payoff first.
 
 ## Week one, in this order
 1. **Run the original first.** Find out whether it runs on the user's machine and how to record it (screen capture is fine). The port above went 61 builds before the original was launched, and by build 85 it still hadn't been compared against it once.

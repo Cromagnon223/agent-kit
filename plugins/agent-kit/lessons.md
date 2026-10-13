@@ -77,3 +77,8 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - A real-engine check must fail on a known-bad input before you trust it: MB2's first load test passed a truncated .bsp because the server crashed after printing the map name.
 - [idea:user] Turn one project's lessons into a reusable handoff for every project (Kyle, 2026-10-13: "for other project handoff").
 - A new build project gets project-mind/HANDOFF.md pasted in at the start: one page, ordered by payoff, standalone (Kyle, 2026-10-13: lessons from the One Piece port for MB2). Also: count a reported symptom with a fix-off switch before fixing it, and write patch scripts with the editor tool, not shell heredocs.
+- A balance sweep's one flagged outlier is worth an hour: in OPBB it exposed a rule an earlier build had marked confirmed (armour = no damage) but read only from the reaction side. Re-read the decompile for the damage side too.
+- Shell heredocs with apostrophes fail on Kyle's PC: write patch scripts with the Write tool.
+- A system added to every screen must not take a resource that only exists after boot (use Option<Res<T>>); a hidden run starting from the title screen catches it.
+- When the user reports a symptom ("overlapping sounds"), count it first with a switch that turns the fix off, so before and after come from the same run and build (OPBB: most sounds at once fell from 24 to 11).
+- Rust rewrites of an existing program also get project-mind/RUST-REWRITE.md: engine-free crates, fixed-tick deterministic simulation, data read at run time, Bevy pitfalls.

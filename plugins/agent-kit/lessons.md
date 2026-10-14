@@ -94,3 +94,14 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Ask the user for a path or one fact only when it is quicker than searching, and do it at the start (MB2: Kyle had to say "just ask me" after 8 minutes of searching).
 - Chat replies are one line plus a link; do not re-post widgets and long explanations after each revision.
 - [idea:claude] Plan freeze: a plan thread must refuse a second revision until the first build has run, unless the user's message changes the target.
+- MB2 harsh review 2 (2026-10-14, 00:49-04:22; overall F; ~55% of Kyle's messages were stalls, status asks or corrections; causes from the chat, no token counts):
+- Prove a local model before handing it work: a scripted test on the user's PC where it makes a real tool call that writes a real file, three times running. MB2's 8B faked tool output, the 30B made 1 of 8 calls after its 19 GB download was already set up, and Pi wrote no port code in 3 hours; Claude on the PC ported the first saber combat in 9 minutes.
+- Small local models (under ~30B) do builds, tests, lookups and file checks only; Claude does ports and multi-step plans. Keep one ownership file so no job sits in two workers' lists (Kyle caught Pi and Claude both holding the saber port).
+- Watch output, not messages: a worker whose progress file or git log has not changed in 10 minutes, or that runs the same failing command 3 times, is stalled; restart it with the fix. MB2: a fix session sat 43 minutes and Pi looped 35 minutes on Windows backslashes, both found by Kyle.
+- Run a launcher end to end on the user's PC before shipping; "your click is the test" is banned (MB2 shipped four untested zips; the first failed because the "16k" model had a 12,288 window and Pi starts at ~25K).
+- Measure a limit (context window, speed, tool-call rate) on the target PC before it goes into a file name or plan.
+- The user's standing merge rule covers every later commit on the PR; a new commit never needs a fresh OK. MB2 asked Kyle to type "merge" twice and the PR still sat unmerged.
+- Never hand the user a command to paste or a "continue" to type; the session on their PC types it, or the job restarts with the fix.
+- One worker per job: retire the old session before starting its replacement; nudge once, then replace, never run two.
+- Post when the result exists, not "I've told the main session"; MB2 had ~25 relay posts that changed nothing.
+- [idea:claude] Pi preflight: the launcher runs a 3-call tool test and a context-window probe before opening Pi, and refuses to start a model that fails either.

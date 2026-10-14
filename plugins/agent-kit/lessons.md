@@ -82,3 +82,15 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - A system added to every screen must not take a resource that only exists after boot (use Option<Res<T>>); a hidden run starting from the title screen catches it.
 - When the user reports a symptom ("overlapping sounds"), count it first with a switch that turns the fix off, so before and after come from the same run and build (OPBB: most sounds at once fell from 24 to 11).
 - Rust/Bevy game rewrites read project-mind/RUST-REWRITE.md (crate split, fixed-tick simulation, run-time data, Bevy pitfalls, through build 87) then project-mind/RUST-REWRITE-LESSONS.md (setup, hand-overs, delivery, Remote Control), each lesson marked proven or suggestion (OPBB port, 2026-10-13).
+- MB2 harsh review (2026-10-14, Kyle scored the first 70 minutes an F-; ~17 of ~47 of his messages were corrections; token counts not visible to the reviewer, so causes are from the chat):
+- A plan has one spine: the user's rewrite script plus their stated target. Add no process the script does not name (OpenJK, replay harness, clips, launcher were each added to the MB2 plan, argued over and removed). One plan revision per user message, never per idea; nine revisions came before the first build.
+- Read the script before drafting the plan, and say in the plan's first line which script steps it follows.
+- Do not build setup (a PR) while the plan is still under review; PR #1 was built, passed CI and was closed unmerged, then redone as #3.
+- Coordinator and planning run on Sonnet or lower; name the model in every brief. Kyle found the session on a top-tier model at high effort, rewriting the plan nine times.
+- The script says Pi plus local models drive and cloud sessions do the hard ports. Verify Pi to Ollama works before anything else, not after the decompile.
+- A device session that only wakes on the user's own messages needs one long, self-driving brief that ends at a stated finish line; never tell the user to post "continue" or answer "no nudge needed" without checking it is running.
+- Status comes from the log or file, not memory. "Ready", "stuck" and "done" are claims to check first (MB2: "3 of 6" shown when all six had finished; "ready to go offline" retracted 13 minutes later).
+- Start no second check session until the first one's last message has been read; MB2 started two duplicates and stopped one.
+- Ask the user for a path or one fact only when it is quicker than searching, and do it at the start (MB2: Kyle had to say "just ask me" after 8 minutes of searching).
+- Chat replies are one line plus a link; do not re-post widgets and long explanations after each revision.
+- [idea:claude] Plan freeze: a plan thread must refuse a second revision until the first build has run, unless the user's message changes the target.

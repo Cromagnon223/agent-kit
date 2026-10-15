@@ -121,3 +121,8 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Re-read the newest messages just before acknowledging a setting change (MB2 confirmed "high" a second after Kyle said "medium").
 - Anything the user had to click twice gets automated next (Kyle relaunched Pi by hand three times in one evening).
 - [idea:claude] Machine-offline watcher: the anti-stall check reads rc_session_status first and, when offline, swaps its nudges for one plain line to the user and a 30-minute recheck.
+- 2026-10-15 (mb2): two sessions syncing into the shared mb2-build copy at once broke a 4-minute viewer build. Rule: build from your own `git archive HEAD` folder, or re-sync immediately before building and treat a failure in files you didn't touch as a sync race (re-sync once, don't debug).
+- 2026-10-15 (mb2): release.ps1 under the PowerShell tool died on cargo's stderr (NativeCommandError on "Blocking waiting for file lock"). Rule: run it from bash as `powershell -File release.ps1 > log 2>&1` in the background and grep ^ERROR / OK:.
+- 2026-10-15 (mb2): read ~300 lines of NPC_Pain/ChoosePainAnimation before finding MBII players/bots never play pain anims. Rule: before porting an NPC_* function, check whether the sandbox actor is a client or a real NPC and trace its function pointer (NPC_PainFunc) first.
+- 2026-10-15 (mb2): before grading model use, check the project's model orders; Kyle put new threads on Opus 5.5 medium on purpose, so calling it a miss was wrong.
+- [idea:claude] Shared-tree hunk staging script: stage HEAD's file plus only your own listed edits (hash-object -w + update-index --cacheinfo) so another session's uncommitted hunks in the same file never land in your commit.

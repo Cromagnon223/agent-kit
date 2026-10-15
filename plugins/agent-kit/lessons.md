@@ -105,3 +105,19 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - One worker per job: retire the old session before starting its replacement; nudge once, then replace, never run two.
 - Post when the result exists, not "I've told the main session"; MB2 had ~25 relay posts that changed nothing.
 - [idea:claude] Pi preflight: the launcher runs a 3-call tool test and a context-window probe before opening Pi, and refuses to start a model that fails either.
+- MB2 harsh review 3 (2026-10-14 20:00 to 2026-10-15 01:46; overall D, up from F; ~58% of Kyle's ~24 messages were stall checks, status asks or corrections; tallied from the chat, no token counts):
+- On the first quiet check read rc_session_status; if the machine is offline, tell the user once in plain words and stop nudging until it is back (MB2 sessions sat parked ~45 min while checks fired).
+- Never name a terminal command to the user, not even `claude remote-control`; say what to switch on in the app (MB2 broke this three times after banning it).
+- Every status claim carries the age of its evidence; older than 15 min, re-check or say "as of HH:MM" (MB2 said "Pi running" 5 min before the PC went offline, from a 28-min-old report).
+- A fresh Remote Control session needs a user message id that has never had one; an id with a session revives its old, huge context (two MB2 sessions stopped within minutes).
+- Keep exactly one anti-stall trigger armed: list triggers before creating one and delete extras.
+- A visible change is not done until one off-screen viewer screenshot of it is attached; "unit tests only" covered most MB2 gameplay fixes.
+- Subagents cannot call project-chat tools; do id and thread lookups directly.
+- When the user names a focus, start nothing adjacent (MB2 started map wiring under a gameplay focus and Kyle cancelled it).
+- When the user reports a gap, check the original has the feature first; "the game has none" means leave it alone.
+- At most 3 active sessions and one heavy build at a time on a CPU-bound user PC (four sessions plus a local model made Kyle's PC crawl).
+- A session that fills its context in under 30 minutes had too wide a brief: name the narrow task and the few files to read.
+- Every session on the user's PC pushes a branch and opens a PR; local-only commits have no backup or CI.
+- Re-read the newest messages just before acknowledging a setting change (MB2 confirmed "high" a second after Kyle said "medium").
+- Anything the user had to click twice gets automated next (Kyle relaunched Pi by hand three times in one evening).
+- [idea:claude] Machine-offline watcher: the anti-stall check reads rc_session_status first and, when offline, swaps its nudges for one plain line to the user and a 30-minute recheck.

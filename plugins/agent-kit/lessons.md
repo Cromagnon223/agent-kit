@@ -126,3 +126,6 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - 2026-10-15 (mb2): read ~300 lines of NPC_Pain/ChoosePainAnimation before finding MBII players/bots never play pain anims. Rule: before porting an NPC_* function, check whether the sandbox actor is a client or a real NPC and trace its function pointer (NPC_PainFunc) first.
 - 2026-10-15 (mb2): before grading model use, check the project's model orders; Kyle put new threads on Opus 5.5 medium on purpose, so calling it a miss was wrong.
 - [idea:claude] Shared-tree hunk staging script: stage HEAD's file plus only your own listed edits (hash-object -w + update-index --cacheinfo) so another session's uncommitted hunks in the same file never land in your commit.
+- Before porting 'missing' config keys, survey the real data files (count per key) and read the parser path for each key; a literal-string grep over the port lists keys that are already handled.
+- A release script must wait for running game exes before rebuilding (locked exe = 'Access is denied'); put the wait in the script, not in ad-hoc loops.
+- [idea:claude] Mechanical decompile ports (parse a key, pick by rank, wire one multiplier) belong on Sonnet; reserve Opus for the saber/anim design questions.

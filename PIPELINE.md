@@ -16,6 +16,10 @@ The goal: Claude uses fewer tokens, picks cheaper models, and gets better at fin
 
 **7. Helpers get cheaper on their own.** After 3 clean sessions a helper moves to a cheaper model; any rework moves it back up.
 
+**8. Pipeline first.** When the goal is something that runs by itself, Claude first builds a rough version that runs end to end on its own, then improves it. It makes at most 3 style tests before going back to the automation, and every milestone check asks: "does this make it run by itself?"
+
+**9. Cheap by default.** The biggest token costs are long threads that keep re-reading a huge history, panels of several reviewer agents, and using Opus when it isn't needed. So: fresh short threads, cheap models, one review.
+
 The detail for developers is in [README.md](README.md).
 
 ## Cloud sessions and other repos

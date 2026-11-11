@@ -129,3 +129,7 @@ Read before each piece of work. Add one line per delivery or correction; keep th
 - Before porting 'missing' config keys, survey the real data files (count per key) and read the parser path for each key; a literal-string grep over the port lists keys that are already handled.
 - A release script must wait for running game exes before rebuilding (locked exe = 'Access is denied'); put the wait in the script, not in ad-hoc loops.
 - [idea:claude] Mechanical decompile ports (parse a key, pick by rank, wire one multiplier) belong on Sonnet; reserve Opus for the saber/anim design questions.
+- 2026-11-11 (video production): two days and billions of tokens went into hand-polishing one test video before the pipeline was wired together. Rule: for any automation goal, build a crude end-to-end pipeline that runs by itself on day one, then polish.
+- Tasting budget: at most 3 style test cuts (samples, drafts) before the work returns to automation; more only if the user asks.
+- The milestone goal check asks "does this make it run by itself?"; a no means "Goal: drifting".
+- Token waste ranked (video production): long-lived threads re-reading huge contexts, multi-agent review panels, Opus by default. Use fresh lean threads, cheap models and one review.
